@@ -3,7 +3,7 @@ import { Global } from "./Global";
 import { Sprite } from "./Sprite";
 import { Enemy } from "./Enemy";
 import { checkCollision } from "./Utils";
-import { Upgrade, UpgradeType } from "./Upgrade";
+import { Upgrade } from "./Upgrade";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -46,6 +46,8 @@ export class Player extends GameObject {
     width: number;
     height: number;
   }[] = [];
+
+  private hoveredChoiceIndex: number | null = null;
 
   constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
     super(x, y);
@@ -110,6 +112,10 @@ export class Player extends GameObject {
     Global.UPGRADE_CHOICES = true; // Set upgrade choice state
     this.upgradeChoices = Upgrade.getRandomUpgrades();
     this.drawUpgradeChoices();
+
+    // Add mouse event listeners for selection and hover
+    Global.CANVAS.addEventListener("click", this.handleUpgradeSelection);
+    Global.CANVAS.addEventListener("mousemove", this.handleUpgradeHover);
   }
 
   // drawDiamondsCounter() {
@@ -120,34 +126,74 @@ export class Player extends GameObject {
 
   drawUpgradeChoices() {
     if (!this.upgradeChoices) return;
-    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.1)";
+
+    Global.CTX.clearRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
+    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.7)";
     Global.CTX.fillRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
 
     Global.CTX.fillStyle = "white";
     Global.CTX.font = "20px Arial";
 
     this.upgradeChoicePositions = [];
-    this.upgradeChoices.forEach((upgrade, index) => {
-      const y = 150 + index * 100;
-      const textX = Global.CANVAS_WIDTH / 2 - 100;
-      const textY = y;
-      const descriptionY = y + 30;
+    const choiceHeight = 100;
+    const spacing =
+      (Global.CANVAS_HEIGHT - this.upgradeChoices.length * choiceHeight) /
+      (this.upgradeChoices.length + 1);
 
-      Global.CTX.fillText(upgrade.name, textX, textY);
-      Global.CTX.fillText(upgrade.description, textX, descriptionY);
+    this.upgradeChoices.forEach((upgrade, index) => {
+      const y = spacing + index * (choiceHeight + spacing);
+      const x = Global.CANVAS_WIDTH / 2 - 150;
+      const width = 300;
+      const height = choiceHeight;
 
       // Store the position and size of the upgrade choice
-      this.upgradeChoicePositions.push({
-        x: textX - 10,
-        y: textY - 20,
-        width: 300,
-        height: 50,
-      });
+      this.upgradeChoicePositions.push({ x, y, width, height });
+
+      // Draw the border
+      Global.CTX.strokeStyle = "black";
+      Global.CTX.lineWidth = 3;
+      Global.CTX.strokeRect(x, y, width, height);
+
+      // Change the color if hovered
+      if (index === this.hoveredChoiceIndex) {
+        Global.CTX.fillStyle = "lightgrey";
+        Global.CTX.fillRect(x, y, width, height);
+        Global.CANVAS.style.cursor = "pointer";
+      } else {
+        Global.CTX.fillStyle = "white";
+        Global.CANVAS.style.cursor = "default";
+      }
+
+      // Draw the text
+      Global.CTX.fillStyle = "black";
+      Global.CTX.fillText(upgrade.name, x + 10, y + 30);
+      Global.CTX.fillText(upgrade.description, x + 10, y + 60);
+    });
+  }
+
+  handleUpgradeHover = (event: MouseEvent) => {
+    const rect = Global.CANVAS.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    let hoveredIndex: number | null = null;
+
+    this.upgradeChoicePositions.forEach((position, index) => {
+      if (
+        mouseX >= position.x &&
+        mouseX <= position.x + position.width &&
+        mouseY >= position.y &&
+        mouseY <= position.y + position.height
+      ) {
+        hoveredIndex = index;
+      }
     });
 
-    // Add a mouse event listener for selection
-    Global.CANVAS.addEventListener("click", this.handleUpgradeSelection);
-  }
+    if (this.hoveredChoiceIndex !== hoveredIndex) {
+      this.hoveredChoiceIndex = hoveredIndex;
+      this.drawUpgradeChoices();
+    }
+  };
 
   handleUpgradeSelection = (event: MouseEvent) => {
     if (!this.upgradeChoices) return;
@@ -172,6 +218,10 @@ export class Player extends GameObject {
           Global.CANVAS.removeEventListener(
             "click",
             this.handleUpgradeSelection
+          );
+          Global.CANVAS.removeEventListener(
+            "mousemove",
+            this.handleUpgradeHover
           );
         }
       }
