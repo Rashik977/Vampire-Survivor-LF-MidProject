@@ -10,7 +10,7 @@ export class Player extends GameObject {
   private totalFrames: number; // Total number of frames in the animation
   private currentFrame: number; // Index of the current frame
   private frameSpeed: number; // Speed of frame change in milliseconds
-  private direction: string; // Possible values: 'right', 'left'
+  public direction: string; // Possible values: 'right', 'left'
   private speed: number;
   private lastAnimationFrameTime: number | null;
 
@@ -34,6 +34,7 @@ export class Player extends GameObject {
   private gameOverImage: HTMLImageElement;
 
   private collectedDiamonds: number;
+  private level: number;
 
   constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
     super(x, y);
@@ -44,7 +45,7 @@ export class Player extends GameObject {
     this.frameSpeed = 200;
     this.direction = "right";
     this.lastAnimationFrameTime = null;
-    this.speed = 0.04;
+    this.speed = 0.05;
 
     this.sourceX = 0;
     this.sourceY = playerIndex; // Assuming all frames are in a single row
@@ -67,6 +68,7 @@ export class Player extends GameObject {
     this.gameOverImage.src = "gameOver.png";
 
     this.collectedDiamonds = 0;
+    this.level = 1;
   }
 
   takeDamage(amount: number, timestamp: number) {
@@ -79,12 +81,58 @@ export class Player extends GameObject {
 
   collectDiamond() {
     this.collectedDiamonds += 1;
+    this.checkLevelUp();
   }
 
-  drawDiamondsCounter() {
+  checkLevelUp() {
+    while (this.collectedDiamonds >= this.level * 5) {
+      this.collectedDiamonds = 0;
+      this.level += 1;
+    }
+  }
+
+  // drawDiamondsCounter() {
+  //   Global.CTX.fillStyle = "white";
+  //   Global.CTX.font = "20px Arial";
+  //   Global.CTX.fillText(`Diamonds: ${this.collectedDiamonds}`, 20, 30);
+  // }
+
+  drawLevelProgressBar() {
+    const progressBarWidth = Global.CANVAS_WIDTH - 40;
+    const progressBarHeight = 30;
+    const progressBarX = 20;
+    const progressBarY = 10;
+    const requiredDiamondsForNextLevel = this.level * 5;
+    const progressPercentage =
+      (this.collectedDiamonds % requiredDiamondsForNextLevel) /
+      requiredDiamondsForNextLevel;
+
+    // Draw the progress bar background
+    Global.CTX.fillStyle = "gray";
+    Global.CTX.fillRect(
+      progressBarX,
+      progressBarY,
+      progressBarWidth,
+      progressBarHeight
+    );
+
+    // Draw the filled part of the progress bar
+    Global.CTX.fillStyle = "green";
+    Global.CTX.fillRect(
+      progressBarX,
+      progressBarY,
+      progressBarWidth * progressPercentage,
+      progressBarHeight
+    );
+
+    // Draw the level text
     Global.CTX.fillStyle = "white";
     Global.CTX.font = "20px Arial";
-    Global.CTX.fillText(`Diamonds: ${this.collectedDiamonds}`, 20, 30);
+    Global.CTX.fillText(
+      `Level: ${this.level}`,
+      progressBarX + progressBarWidth / 2 - 30,
+      progressBarY + progressBarHeight / 2 + 7
+    );
   }
 
   playerUpdate(deltaTime: number, timestamp: number, keys: any) {
@@ -115,6 +163,14 @@ export class Player extends GameObject {
 
     this.X += dx;
     this.Y += dy;
+
+    // Check for collision with canvas boundaries
+    if (this.X - this.frameWidth < 0) this.X = this.frameWidth;
+    if (this.X + this.frameWidth > Global.CANVAS_WIDTH)
+      this.X = Global.CANVAS_WIDTH - this.frameWidth;
+    if (this.Y - this.frameHeight < 0) this.Y = this.frameHeight;
+    if (this.Y + this.frameHeight > Global.CANVAS_HEIGHT)
+      this.Y = Global.CANVAS_HEIGHT - this.frameHeight;
 
     // Handle attack
     if (
@@ -245,11 +301,11 @@ export class Player extends GameObject {
         0,
         380,
         this.frameWidth,
-        this.frameHeight, // Source rectangle
+        20, // Source rectangle
         this.X - this.whipLength - 15,
         this.Y - this.frameHeight / 2, // Destination rectangle
         this.frameWidth * this.playerScale,
-        this.frameHeight * this.playerScale
+        20 * this.playerScale
       );
     }
 
@@ -260,17 +316,18 @@ export class Player extends GameObject {
         0,
         380,
         this.frameWidth,
-        this.frameHeight, // Source rectangle
+        20, // Source rectangle
         -(this.X + this.frameWidth * 2.5),
         this.Y - this.frameHeight / 2, // Destination rectangle (negated x to flip)
         this.frameWidth * this.playerScale,
-        this.frameHeight * this.playerScale
+        20 * this.playerScale
       );
     }
 
     Global.CTX.restore(); // Restore the Global.CANVAS state
     // Draw the health bar
-    this.drawDiamondsCounter();
+    // this.drawDiamondsCounter();
+    this.drawLevelProgressBar();
     this.drawHealthBar();
   }
 

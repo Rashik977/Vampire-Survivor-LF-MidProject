@@ -71,7 +71,7 @@ function spawnEnemy() {
 }
 
 function gameLoop(timestamp: number) {
-  console.log(currencies);
+  if (currencies.length > 1) currencies[0].draw(sprite);
   if (Global.PAUSE) {
     if (!Global.GAMEOVER) {
       Global.CTX.fillStyle = "white";
@@ -121,14 +121,14 @@ function gameLoop(timestamp: number) {
   // Draw the current frame
   for (const enemy of enemies) {
     enemy.enemyDraw(sprite);
-    enemy.drawCollisionBorder();
+    // enemy.drawCollisionBorder();
   }
   for (const currency of currencies) {
-    currency.draw();
+    currency.draw(sprite);
   }
 
   player.playerDraw(sprite);
-  player.drawCollisionBorder();
+  // player.drawCollisionBorder();
 
   // Request the next frame
   requestAnimationFrame(gameLoop);

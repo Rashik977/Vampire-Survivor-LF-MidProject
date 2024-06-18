@@ -1,63 +1,83 @@
 import { GameObject } from "./GameObject";
 import { Global } from "./Global";
 import { Player } from "./Player";
+import { Sprite } from "./Sprite";
 
 export class Currency extends GameObject {
   private player: Player;
   private speed: number;
-  private collected: boolean;
+  private collecting: boolean;
   private currencies: Currency[];
+
+  private sourceX: number;
+  private sourceY: number;
+  private frameWidth: number;
+  private frameHeight: number;
 
   constructor(x: number, y: number, player: Player, currencies: Currency[]) {
     super(x, y);
     this.player = player;
-    this.speed = 0.1;
-    this.collected = false;
+    this.speed = 0.8;
+    this.collecting = false;
     this.currencies = currencies;
+
+    this.sourceX = 0;
+    this.sourceY = 400;
+    this.frameWidth = 24;
+    this.frameHeight = 24;
   }
 
   update(deltaTime: number) {
-    if (this.collected) {
-      return;
-    }
-
     // Check if player is near
     const distance = Math.sqrt(
       (this.player.X - this.X) ** 2 + (this.player.Y - this.Y) ** 2
     );
-    if (distance < 50) {
-      this.collected = true;
+    if (
+      (distance < 60 && this.player.direction === "right") ||
+      (distance < 100 && this.player.direction === "left")
+    ) {
+      this.collecting = true;
     }
 
-    // Animate towards player if collected
-    if (this.collected) {
-      for (const currency of this.currencies) {
-        if (currency === this) {
-          this.currencies.splice(this.currencies.indexOf(currency), 1);
-          this.player.collectDiamond();
-        }
-      }
+    // Animate towards player if collecting
+    if (this.collecting) {
+      let dx = this.player.X - this.X;
+      let dy = this.player.Y - this.Y;
 
-      const dx = this.player.X - this.X;
-      const dy = this.player.Y - this.Y;
+      // Normalize the movement to ensure consistent speed in all directions
       const length = Math.sqrt(dx * dx + dy * dy);
       if (length > 0) {
-        this.X += (dx / length) * this.speed * deltaTime;
-        this.Y += (dy / length) * this.speed * deltaTime;
+        dx = (dx / length) * this.speed * deltaTime;
+        dy = (dy / length) * this.speed * deltaTime;
       }
+
+      // Update the enemy's position
+      this.X += dx;
+      this.Y += dy;
 
       // Check if reached player
       if (distance < 10) {
-        this.player.collectDiamond();
-        return false; // Indicate to remove from array
+        for (const currency of this.currencies) {
+          if (currency === this) {
+            this.currencies.splice(this.currencies.indexOf(currency), 1);
+            this.player.collectDiamond();
+          }
+        }
       }
     }
-
-    return true; // Indicate to keep in array
   }
 
-  draw() {
-    Global.CTX.fillStyle = "gold";
-    Global.CTX.fillRect(this.X - 5, this.Y - 5, 10, 10);
+  draw(sprite: Sprite) {
+    Global.CTX.drawImage(
+      sprite.spriteSheet,
+      this.sourceX,
+      this.sourceY,
+      this.frameWidth,
+      this.frameHeight,
+      this.X,
+      this.Y,
+      this.frameWidth * 2,
+      this.frameHeight * 2
+    );
   }
 }
