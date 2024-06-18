@@ -172,6 +172,13 @@ export class Player extends GameObject {
         Global.CANVAS_WIDTH / 2 - this.gameOverImage.width / 2,
         Global.CANVAS_HEIGHT / 2 - this.gameOverImage.height / 2
       );
+      Global.CTX.fillStyle = "white";
+      Global.CTX.font = "20px Arial";
+      Global.CTX.fillText(
+        "Press Enter to restart",
+        Global.CANVAS_WIDTH / 2 - 100,
+        Global.CANVAS_HEIGHT / 2 + 60
+      );
       Global.GAMEOVER = true;
       Global.PAUSE = true;
       return;
