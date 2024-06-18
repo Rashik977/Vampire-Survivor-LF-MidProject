@@ -13,4 +13,5 @@ export const Global: any = {
   CANVAS_BORDER_COLOR: canvasBorderColor,
   PAUSE: false,
   GAMEOVER: false,
+  UPGRADE: false,
 };

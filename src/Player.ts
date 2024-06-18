@@ -3,6 +3,7 @@ import { Global } from "./Global";
 import { Sprite } from "./Sprite";
 import { Enemy } from "./Enemy";
 import { checkCollision } from "./Utils";
+import { Upgrade, UpgradeType } from "./Upgrade";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -35,6 +36,16 @@ export class Player extends GameObject {
 
   private collectedDiamonds: number;
   private level: number;
+
+  public coinAttractionRange: number;
+
+  private upgradeChoices: Upgrade[] | null = null;
+  private upgradeChoicePositions: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }[] = [];
 
   constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
     super(x, y);
@@ -69,6 +80,8 @@ export class Player extends GameObject {
 
     this.collectedDiamonds = 0;
     this.level = 1;
+
+    this.coinAttractionRange = 60;
   }
 
   takeDamage(amount: number, timestamp: number) {
@@ -88,7 +101,15 @@ export class Player extends GameObject {
     while (this.collectedDiamonds >= this.level * 5) {
       this.collectedDiamonds = 0;
       this.level += 1;
+      this.promptUpgradeChoices();
     }
+  }
+
+  promptUpgradeChoices() {
+    Global.PAUSE = true;
+    Global.UPGRADE_CHOICES = true; // Set upgrade choice state
+    this.upgradeChoices = Upgrade.getRandomUpgrades();
+    this.drawUpgradeChoices();
   }
 
   // drawDiamondsCounter() {
@@ -96,6 +117,83 @@ export class Player extends GameObject {
   //   Global.CTX.font = "20px Arial";
   //   Global.CTX.fillText(`Diamonds: ${this.collectedDiamonds}`, 20, 30);
   // }
+
+  drawUpgradeChoices() {
+    if (!this.upgradeChoices) return;
+    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.1)";
+    Global.CTX.fillRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
+
+    Global.CTX.fillStyle = "white";
+    Global.CTX.font = "20px Arial";
+
+    this.upgradeChoicePositions = [];
+    this.upgradeChoices.forEach((upgrade, index) => {
+      const y = 150 + index * 100;
+      const textX = Global.CANVAS_WIDTH / 2 - 100;
+      const textY = y;
+      const descriptionY = y + 30;
+
+      Global.CTX.fillText(upgrade.name, textX, textY);
+      Global.CTX.fillText(upgrade.description, textX, descriptionY);
+
+      // Store the position and size of the upgrade choice
+      this.upgradeChoicePositions.push({
+        x: textX - 10,
+        y: textY - 20,
+        width: 300,
+        height: 50,
+      });
+    });
+
+    // Add a mouse event listener for selection
+    Global.CANVAS.addEventListener("click", this.handleUpgradeSelection);
+  }
+
+  handleUpgradeSelection = (event: MouseEvent) => {
+    if (!this.upgradeChoices) return;
+
+    const rect = Global.CANVAS.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    this.upgradeChoicePositions.forEach((position, index) => {
+      if (
+        mouseX >= position.x &&
+        mouseX <= position.x + position.width &&
+        mouseY >= position.y &&
+        mouseY <= position.y + position.height
+      ) {
+        if (this.upgradeChoices) {
+          const selectedUpgrade = this.upgradeChoices[index];
+          this.applyUpgrade(selectedUpgrade);
+          this.upgradeChoices = null;
+          Global.PAUSE = false;
+          Global.UPGRADE_CHOICES = false; // Reset upgrade choice state
+          Global.CANVAS.removeEventListener(
+            "click",
+            this.handleUpgradeSelection
+          );
+        }
+      }
+    });
+  };
+
+  applyUpgrade(upgrade: Upgrade) {
+    switch (upgrade.type) {
+      case "speed":
+        this.speed += 0.01;
+        break;
+      case "maxHealth":
+        this.health = this.maxHealth;
+        break;
+      case "damage":
+        this.damage += 5;
+        break;
+      case "coinAttraction":
+        this.coinAttractionRange += 10;
+        break;
+    }
+  }
 
   drawLevelProgressBar() {
     const progressBarWidth = Global.CANVAS_WIDTH - 40;

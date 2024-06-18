@@ -71,9 +71,11 @@ function spawnEnemy() {
 }
 
 function gameLoop(timestamp: number) {
-  if (currencies.length > 1) currencies[0].draw(sprite);
   if (Global.PAUSE) {
-    if (!Global.GAMEOVER) {
+    if (Global.UPGRADE_CHOICES) {
+      // If the player is choosing upgrades, do not show the pause message
+      player.drawUpgradeChoices();
+    } else if (!Global.GAMEOVER) {
       Global.CTX.fillStyle = "white";
       Global.CTX.font = "60px Arial";
       Global.CTX.fillText(
