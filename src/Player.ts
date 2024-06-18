@@ -33,6 +33,8 @@ export class Player extends GameObject {
 
   private gameOverImage: HTMLImageElement;
 
+  private collectedDiamonds: number;
+
   constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
     super(x, y);
     this.frameWidth = 37;
@@ -63,6 +65,8 @@ export class Player extends GameObject {
 
     this.gameOverImage = new Image();
     this.gameOverImage.src = "gameOver.png";
+
+    this.collectedDiamonds = 0;
   }
 
   takeDamage(amount: number, timestamp: number) {
@@ -71,6 +75,16 @@ export class Player extends GameObject {
       this.lastDamageTime = timestamp;
       this.health = Math.max(this.health, 0); // Ensure health doesn't go below 0
     }
+  }
+
+  collectDiamond() {
+    this.collectedDiamonds += 1;
+  }
+
+  drawDiamondsCounter() {
+    Global.CTX.fillStyle = "white";
+    Global.CTX.font = "20px Arial";
+    Global.CTX.fillText(`Diamonds: ${this.collectedDiamonds}`, 20, 30);
   }
 
   playerUpdate(deltaTime: number, timestamp: number, keys: any) {
@@ -224,23 +238,39 @@ export class Player extends GameObject {
       );
     }
 
-    if (this.isAttacking) {
+    if (this.isAttacking && this.direction === "left") {
       Global.CTX.restore(); // Restore the Global.CANVAS state
-      Global.CTX.strokeStyle = "yellow";
-      Global.CTX.lineWidth = 2;
-      Global.CTX.beginPath();
-      Global.CTX.moveTo(this.X, this.Y);
-      Global.CTX.lineTo(
-        this.direction === "right"
-          ? this.X + this.whipLength
-          : this.X - this.whipLength,
-        this.Y
+      Global.CTX.drawImage(
+        sprite.spriteSheet,
+        0,
+        380,
+        this.frameWidth,
+        this.frameHeight, // Source rectangle
+        this.X - this.whipLength - 15,
+        this.Y - this.frameHeight / 2, // Destination rectangle
+        this.frameWidth * this.playerScale,
+        this.frameHeight * this.playerScale
       );
-      Global.CTX.stroke();
+    }
+
+    if (this.isAttacking && this.direction === "right") {
+      Global.CTX.scale(-1, 1);
+      Global.CTX.drawImage(
+        sprite.spriteSheet,
+        0,
+        380,
+        this.frameWidth,
+        this.frameHeight, // Source rectangle
+        -(this.X + this.frameWidth * 2.5),
+        this.Y - this.frameHeight / 2, // Destination rectangle (negated x to flip)
+        this.frameWidth * this.playerScale,
+        this.frameHeight * this.playerScale
+      );
     }
 
     Global.CTX.restore(); // Restore the Global.CANVAS state
     // Draw the health bar
+    this.drawDiamondsCounter();
     this.drawHealthBar();
   }
 

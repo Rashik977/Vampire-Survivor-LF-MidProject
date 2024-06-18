@@ -5,12 +5,14 @@ import { Player } from "./Player";
 import { Sprite } from "./Sprite";
 import { KeyControls } from "./KeyControls";
 import { Enemy } from "./Enemy";
+import { Currency } from "./Currency";
 
 Global.CANVAS.width = Global.CANVAS_WIDTH;
 Global.CANVAS.height = Global.CANVAS_HEIGHT;
 Global.CANVAS.style.border = `1px solid ${Global.CANVAS_BORDER_COLOR}`;
 
 const enemies: Enemy[] = [];
+const currencies: Currency[] = [];
 
 const sprite = new Sprite("characters1.png", gameLoop);
 const background = new Background(0, 0, "bg_forest.png");
@@ -69,6 +71,7 @@ function spawnEnemy() {
 }
 
 function gameLoop(timestamp: number) {
+  console.log(currencies);
   if (Global.PAUSE) {
     if (!Global.GAMEOVER) {
       Global.CTX.fillStyle = "white";
@@ -104,7 +107,11 @@ function gameLoop(timestamp: number) {
 
   for (const enemy of enemies) {
     enemy.enemyAnimationUpdate(timestamp);
-    enemy.enemyUpdate(deltaTime, timestamp);
+    enemy.enemyUpdate(deltaTime, timestamp, currencies);
+  }
+
+  for (const currency of currencies) {
+    currency.update(deltaTime);
   }
 
   Global.CTX.clearRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
@@ -115,6 +122,9 @@ function gameLoop(timestamp: number) {
   for (const enemy of enemies) {
     enemy.enemyDraw(sprite);
     enemy.drawCollisionBorder();
+  }
+  for (const currency of currencies) {
+    currency.draw();
   }
 
   player.playerDraw(sprite);

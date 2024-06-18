@@ -20,7 +20,7 @@ export class Particle extends GameObject {
     this.velocityX = speed * Math.cos(angle);
     this.velocityY = speed * Math.sin(angle);
 
-    this.lifetime = 200; // Lifetime in milliseconds
+    this.lifetime = 500; // Lifetime in milliseconds
     this.age = 0;
   }
 

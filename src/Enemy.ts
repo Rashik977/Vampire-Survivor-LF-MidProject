@@ -4,6 +4,7 @@ import { Sprite } from "./Sprite";
 import { Player } from "./Player";
 import { checkCollision } from "./Utils";
 import { Particle } from "./Particles";
+import { Currency } from "./Currency";
 
 export class Enemy extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -64,7 +65,15 @@ export class Enemy extends GameObject {
     this.enemies = enemies; // Reference to the enemies
   }
 
-  enemyUpdate(deltaTime: number, timestamp: number) {
+  enemyUpdate(deltaTime: number, timestamp: number, currencies: Currency[]) {
+    if (this.health <= 0) {
+      for (let enemy of this.enemies) {
+        if (enemy === this) {
+          this.enemies.splice(this.enemies.indexOf(enemy), 1);
+        }
+      }
+      this.die(currencies);
+    }
     // Calculate the direction towards the player
     let dx = this.player.X - this.X;
     let dy = this.player.Y - this.Y;
@@ -89,6 +98,7 @@ export class Enemy extends GameObject {
 
     // Check if the enemy is close enough to damage the player
     if (checkCollision(this, this.player)) {
+      this.X = this.player.X + 50 * (dx < 0 ? 1 : -1);
       this.player.takeDamage(this.damage, timestamp);
       this.generateBloodParticles(this.player.X, this.player.Y);
     }
@@ -103,7 +113,7 @@ export class Enemy extends GameObject {
   }
 
   generateBloodParticles(x: number, y: number) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 15; i++) {
       // Generate 20 particles
       this.particles.push(new Particle(x, y));
     }
@@ -112,14 +122,12 @@ export class Enemy extends GameObject {
   takeDamage(amount: number) {
     this.health -= amount;
     this.damageTexts.push({ x: this.X, y: this.Y, damage: amount, alpha: 1 });
-    if (this.health <= 0) {
-      this.health = 0;
-      for (let enemy of this.enemies) {
-        if (enemy === this) {
-          this.enemies.splice(this.enemies.indexOf(enemy), 1);
-        }
-      }
-    }
+  }
+
+  die(currencies: Currency[]) {
+    // Drop a diamond
+    const diamond = new Currency(this.X, this.Y, this.player, currencies);
+    currencies.push(diamond);
   }
 
   enemyAnimationUpdate(timestamp: number) {
