@@ -32,12 +32,7 @@ export class Currency extends GameObject {
     const distance = Math.sqrt(
       (this.player.X - this.X) ** 2 + (this.player.Y - this.Y) ** 2
     );
-    if (
-      (distance < this.player.coinAttractionRange &&
-        this.player.direction === "right") ||
-      (distance < this.player.coinAttractionRange + 40 &&
-        this.player.direction === "left")
-    ) {
+    if (distance < this.player.coinAttractionRange) {
       this.collecting = true;
     }
 

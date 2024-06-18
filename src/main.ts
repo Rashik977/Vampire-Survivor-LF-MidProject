@@ -28,18 +28,14 @@ let lastFrameTime: number = 0;
 
 // Enemy spawn variables
 let elapsedSpawnTime = 0;
-const minSpawnInterval = 2000; // Minimum spawn interval in milliseconds
-const maxSpawnInterval = 5000; // Maximum spawn interval in milliseconds
-let spawnInterval = getRandomSpawnInterval();
+let spawnInterval = 5000;
 
 controlls.keydown(gameLoop);
 controlls.keyup();
 
 // Function to get a random spawn interval within the specified range
 function getRandomSpawnInterval() {
-  return (
-    Math.random() * (maxSpawnInterval - minSpawnInterval) + minSpawnInterval
-  );
+  return Math.random() * Math.max(7000 - player.level * 500, 1000);
 }
 
 // Function to spawn enemies at random positions outside the canvas
@@ -67,10 +63,11 @@ function spawnEnemy() {
       break;
   }
 
-  enemies.push(new Enemy(x, y, 220, player, enemies));
+  enemies.push(new Enemy(x, y, 220, 26, player, enemies));
 }
 
 function gameLoop(timestamp: number) {
+  console.log(spawnInterval);
   if (Global.PAUSE) {
     if (Global.UPGRADE_CHOICES) {
       // If the player is choosing upgrades, do not show the pause message

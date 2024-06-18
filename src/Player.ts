@@ -35,7 +35,7 @@ export class Player extends GameObject {
   private gameOverImage: HTMLImageElement;
 
   private collectedDiamonds: number;
-  private level: number;
+  public level: number;
 
   public coinAttractionRange: number;
 
@@ -237,10 +237,10 @@ export class Player extends GameObject {
         this.health = this.maxHealth;
         break;
       case "damage":
-        this.damage += 5;
+        this.damage += 2;
         break;
       case "coinAttraction":
-        this.coinAttractionRange += 10;
+        this.coinAttractionRange += 5;
         break;
     }
   }

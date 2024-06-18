@@ -37,6 +37,7 @@ export class Enemy extends GameObject {
     x: number,
     y: number,
     enemyIndex: number,
+    health: number,
     player: Player,
     enemies: Enemy[]
   ) {
@@ -60,7 +61,7 @@ export class Enemy extends GameObject {
 
     this.particles = [];
 
-    this.health = 20; // Set initial health
+    this.health = health; // Set initial health
     this.damageTexts = []; // To store damage texts
     this.enemies = enemies; // Reference to the enemies
   }
