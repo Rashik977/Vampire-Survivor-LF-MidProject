@@ -6,6 +6,7 @@ import { Sprite } from "./Sprite";
 import { KeyControls } from "./KeyControls";
 import { Enemy } from "./Enemy";
 import { Currency } from "./Currency";
+import { soundManager } from "./SoundManager";
 
 Global.CANVAS.width = Global.CANVAS_WIDTH;
 Global.CANVAS.height = Global.CANVAS_HEIGHT;
@@ -25,6 +26,7 @@ const player = new Player(
 const controlls = new KeyControls();
 
 let lastFrameTime: number = 0;
+let pauseTimestamp: number | null = null;
 
 // Enemy spawn variables
 let elapsedSpawnTime = 0;
@@ -66,9 +68,119 @@ function spawnEnemy() {
   enemies.push(new Enemy(x, y, 220, 26, player, enemies));
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const handleInteraction = () => {
+    soundManager.playMusic();
+    // Remove the event listener after the first interaction
+    document.removeEventListener("click", handleInteraction);
+    document.removeEventListener("keydown", handleInteraction);
+  };
+
+  document.addEventListener("click", handleInteraction);
+  document.addEventListener("keydown", handleInteraction);
+});
+
+function drawVolumeSliders() {
+  const sliderWidth = 200;
+  const sliderHeight = 20;
+  const musicSliderX = (Global.CANVAS_WIDTH - sliderWidth) / 2;
+  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
+  const sfxSliderX = musicSliderX;
+  const sfxSliderY = musicSliderY + 50;
+
+  // Draw music volume slider
+  drawSlider(
+    musicSliderX,
+    musicSliderY,
+    sliderWidth,
+    sliderHeight,
+    soundManager.musicVolume,
+    "Music Volume"
+  );
+
+  // Draw SFX volume slider
+  drawSlider(
+    sfxSliderX,
+    sfxSliderY,
+    sliderWidth,
+    sliderHeight,
+    soundManager.sfxVolume,
+    "SFX Volume"
+  );
+}
+
+function drawSlider(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  value: number,
+  label: string
+) {
+  Global.CTX.fillStyle = "white";
+  Global.CTX.fillRect(x, y, width, height);
+  Global.CTX.fillStyle = "green";
+  Global.CTX.fillRect(x, y, width * value, height);
+  Global.CTX.strokeStyle = "black";
+  Global.CTX.lineWidth = 3;
+  Global.CTX.strokeRect(x, y, width, height);
+
+  Global.CTX.fillStyle = "white";
+  Global.CTX.font = "16px Arial";
+  Global.CTX.fillText(label, x, y - 10);
+}
+
+let isDraggingMusicSlider = false;
+let isDraggingSFXSlider = false;
+
+Global.CANVAS.addEventListener("mousedown", (event: any) => {
+  const { offsetX, offsetY } = event;
+  const musicSliderX = (Global.CANVAS_WIDTH - 200) / 2;
+  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
+  const sfxSliderX = musicSliderX;
+  const sfxSliderY = musicSliderY + 50;
+
+  if (
+    offsetX >= musicSliderX &&
+    offsetX <= musicSliderX + 200 &&
+    offsetY >= musicSliderY &&
+    offsetY <= musicSliderY + 20
+  ) {
+    isDraggingMusicSlider = true;
+  } else if (
+    offsetX >= sfxSliderX &&
+    offsetX <= sfxSliderX + 200 &&
+    offsetY >= sfxSliderY &&
+    offsetY <= sfxSliderY + 20
+  ) {
+    isDraggingSFXSlider = true;
+  }
+});
+
+Global.CANVAS.addEventListener("mousemove", (event: any) => {
+  if (isDraggingMusicSlider || isDraggingSFXSlider) {
+    const { offsetX } = event;
+    const sliderX = (Global.CANVAS_WIDTH - 200) / 2;
+    const value = Math.max(0, Math.min(1, (offsetX - sliderX) / 200));
+
+    if (isDraggingMusicSlider) {
+      soundManager.updateVolume(value, soundManager.sfxVolume);
+    } else if (isDraggingSFXSlider) {
+      soundManager.updateVolume(soundManager.musicVolume, value);
+    }
+  }
+});
+
+Global.CANVAS.addEventListener("mouseup", () => {
+  isDraggingMusicSlider = false;
+  isDraggingSFXSlider = false;
+});
+
 function gameLoop(timestamp: number) {
-  console.log(spawnInterval);
   if (Global.PAUSE) {
+    if (!soundManager.music.paused) {
+      soundManager.music.pause();
+    }
     if (Global.UPGRADE_CHOICES) {
       // If the player is choosing upgrades, do not show the pause message
       player.drawUpgradeChoices();
@@ -78,12 +190,26 @@ function gameLoop(timestamp: number) {
       Global.CTX.fillText(
         "PAUSED",
         Global.CANVAS_WIDTH / 2 - 120,
-        Global.CANVAS_HEIGHT / 2
+        Global.CANVAS_HEIGHT / 3
       );
+      drawVolumeSliders();
     }
+    pauseTimestamp = timestamp;
     lastFrameTime = timestamp;
     requestAnimationFrame(gameLoop);
     return;
+  }
+
+  if (pauseTimestamp) {
+    lastFrameTime += timestamp - pauseTimestamp;
+    pauseTimestamp = 0;
+
+    // Resume music when the game is unpaused
+    if (soundManager.music.paused) {
+      soundManager.music.play().catch((error) => {
+        console.log("Error resuming music:", error);
+      });
+    }
   }
 
   // Calculate the time elapsed since the last frame

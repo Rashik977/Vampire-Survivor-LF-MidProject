@@ -4,6 +4,7 @@ import { Sprite } from "./Sprite";
 import { Enemy } from "./Enemy";
 import { checkCollision } from "./Utils";
 import { Upgrade } from "./Upgrade";
+import { soundManager } from "./SoundManager";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -89,6 +90,8 @@ export class Player extends GameObject {
   takeDamage(amount: number, timestamp: number) {
     if (timestamp - this.lastDamageTime > this.damageCooldown) {
       this.health -= amount;
+      soundManager.playSFX("take_damage");
+      soundManager.sfx["take_damage"].volume = 1;
       this.lastDamageTime = timestamp;
       this.health = Math.max(this.health, 0); // Ensure health doesn't go below 0
     }
@@ -97,12 +100,14 @@ export class Player extends GameObject {
   collectDiamond() {
     this.collectedDiamonds += 1;
     this.checkLevelUp();
+    soundManager.playSFX("collect");
   }
 
   checkLevelUp() {
     while (this.collectedDiamonds >= this.level * 5) {
       this.collectedDiamonds = 0;
       this.level += 1;
+      soundManager.playSFX("level_up");
       this.promptUpgradeChoices();
     }
   }
@@ -342,6 +347,8 @@ export class Player extends GameObject {
   }
 
   performAttack() {
+    soundManager.playSFX("whip");
+    soundManager.sfx["whip"].volume = 0.1;
     const whipEndX =
       this.direction === "right"
         ? this.X + this.whipLength
@@ -360,6 +367,7 @@ export class Player extends GameObject {
           enemy
         )
       ) {
+        soundManager.playSFX("damage");
         enemy.takeDamage(this.damage);
       }
     });
@@ -384,6 +392,8 @@ export class Player extends GameObject {
 
   playerDraw(sprite: Sprite) {
     if (this.health <= 0) {
+      soundManager.playSFX("gameOver");
+      soundManager.music.pause();
       console.log("Game Over");
       Global.CTX.drawImage(
         this.gameOverImage,
