@@ -2,9 +2,10 @@ import { GameObject } from "./GameObject";
 import { Global } from "./Global";
 import { Sprite } from "./Sprite";
 import { Player } from "./Player";
-import { checkCollision } from "./Utils";
+import { checkCollisionPlayer } from "./Utils";
 import { Particle } from "./Particles";
 import { Currency } from "./Currency";
+import { soundManager } from "./SoundManager";
 
 export class Enemy extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -36,14 +37,16 @@ export class Enemy extends GameObject {
   constructor(
     x: number,
     y: number,
-    enemyIndex: number,
+    sourceY: number,
+    frameWidth: number,
+    frameHeight: number,
     health: number,
     player: Player,
     enemies: Enemy[]
   ) {
     super(x, y);
-    this.frameWidth = 37;
-    this.frameHeight = 30;
+    this.frameWidth = frameWidth;
+    this.frameHeight = frameHeight;
     this.totalFrames = 3;
     this.currentFrame = 0;
     this.frameSpeed = 150;
@@ -52,7 +55,7 @@ export class Enemy extends GameObject {
     this.speed = 0.02;
 
     this.sourceX = 0;
-    this.sourceY = enemyIndex;
+    this.sourceY = sourceY;
     this.enemyScale = 1.7; // Scale the enemy sprite
 
     this.player = player;
@@ -98,8 +101,8 @@ export class Enemy extends GameObject {
     }
 
     // Check if the enemy is close enough to damage the player
-    if (checkCollision(this, this.player)) {
-      this.X = this.player.X + 50 * (dx < 0 ? 1 : -1);
+    if (checkCollisionPlayer(this, this.player)) {
+      this.X = this.player.X + 100 * (dx < 0 ? 1 : -1);
       this.player.takeDamage(this.damage, timestamp);
       this.generateBloodParticles(this.player.X, this.player.Y);
     }
@@ -121,6 +124,7 @@ export class Enemy extends GameObject {
   }
 
   takeDamage(amount: number) {
+    soundManager.playSFX("damage");
     this.health -= amount;
     this.damageTexts.push({ x: this.X, y: this.Y, damage: amount, alpha: 1 });
   }

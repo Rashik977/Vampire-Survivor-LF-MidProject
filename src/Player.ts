@@ -2,9 +2,11 @@ import { GameObject } from "./GameObject";
 import { Global } from "./Global";
 import { Sprite } from "./Sprite";
 import { Enemy } from "./Enemy";
-import { checkCollision } from "./Utils";
+import { checkCollisionPlayer, normalize } from "./Utils";
 import { Upgrade } from "./Upgrade";
 import { soundManager } from "./SoundManager";
+import { Bullet } from "./Bullets";
+import { Shield } from "./Shield";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -56,6 +58,15 @@ export class Player extends GameObject {
 
   private gameLoop: any;
 
+  public static ownGun: boolean = false;
+  public static ownBible: boolean = false;
+
+  private projectiles: Bullet[] = [];
+  private projectileCooldown: number = 1000; // 0.5 second cooldown
+  private lastProjectileTime: number | null = null;
+
+  private shield: Shield = new Shield(this, 2, 5, 80);
+
   constructor(
     x: number,
     y: number,
@@ -68,7 +79,7 @@ export class Player extends GameObject {
     this.frameHeight = 37;
     this.totalFrames = 3;
     this.currentFrame = 0;
-    this.frameSpeed = 200;
+    this.frameSpeed = 150;
     this.direction = "right";
     this.lastAnimationFrameTime = null;
     this.speed = 0.1;
@@ -105,7 +116,6 @@ export class Player extends GameObject {
     if (timestamp - this.lastDamageTime > this.damageCooldown) {
       this.health -= amount;
       soundManager.playSFX("take_damage");
-      soundManager.sfx["take_damage"].volume = 1;
       this.lastDamageTime = timestamp;
       this.health = Math.max(this.health, 0); // Ensure health doesn't go below 0
     }
@@ -260,16 +270,31 @@ export class Player extends GameObject {
   applyUpgrade(upgrade: Upgrade) {
     switch (upgrade.type) {
       case "speed":
-        this.speed += 0.01;
+        this.speed += 0.02;
         break;
       case "maxHealth":
         this.health = this.maxHealth;
         break;
-      case "damage":
-        this.damage += 2;
-        break;
       case "coinAttraction":
-        this.coinAttractionRange += 5;
+        this.coinAttractionRange += 10;
+        break;
+      case "gun":
+        Player.ownGun = true;
+        break;
+      case "gun upgrade":
+        this.projectileCooldown -= 100;
+        Bullet.damage += 10;
+        break;
+      case "whip upgrade":
+        this.damage += 5;
+        this.damageCooldown -= 100;
+        break;
+      case "shield":
+        Player.ownBible = true;
+        break;
+      case "shield upgrade":
+        this.shield.rotationSpeed += 0.1;
+        this.shield.damage += 3;
         break;
     }
   }
@@ -331,6 +356,8 @@ export class Player extends GameObject {
       dy += 1;
     }
 
+    if (Player.ownBible) this.shield.update(deltaTime, this.enemies);
+
     // Normalize the movement to ensure consistent speed in all directions
     const length = Math.sqrt(dx * dx + dy * dy);
     if (length > 0) {
@@ -388,11 +415,41 @@ export class Player extends GameObject {
     ) {
       this.isAttacking = false;
     }
+
+    // Fire bullets at fixed intervals
+    if (
+      Player.ownGun &&
+      (!this.lastProjectileTime ||
+        timestamp - this.lastProjectileTime >= this.projectileCooldown)
+    ) {
+      this.fireBullet();
+      this.lastProjectileTime = timestamp;
+    }
+
+    // Update bullets
+    this.projectiles.forEach((bullet, index) => {
+      bullet.update(deltaTime, this.enemies);
+      if (bullet.isOutOfFrame()) {
+        this.projectiles.splice(index, 1);
+      }
+    });
+  }
+
+  fireBullet() {
+    soundManager.playSFX("gun");
+    let direction = {
+      x: Math.random() * 2 - 1,
+      y: Math.random() * 2 - 1,
+    };
+    direction = normalize(direction); // Normalize the direction vector
+    const speed = 0.6;
+    this.projectiles.push(
+      new Bullet(this.X, this.Y, speed, direction, 40, 30, this.projectiles)
+    );
   }
 
   performAttack() {
     soundManager.playSFX("whip");
-    soundManager.sfx["whip"].volume = 0.1;
     const whipEndX =
       this.direction === "right"
         ? this.X + this.whipLength
@@ -401,7 +458,7 @@ export class Player extends GameObject {
 
     this.enemies.forEach((enemy) => {
       if (
-        checkCollision(
+        checkCollisionPlayer(
           {
             X: whipEndX,
             Y: whipEndY,
@@ -411,7 +468,6 @@ export class Player extends GameObject {
           enemy
         )
       ) {
-        soundManager.playSFX("damage");
         enemy.takeDamage(this.damage);
       }
     });
@@ -435,6 +491,11 @@ export class Player extends GameObject {
   }
 
   playerDraw(sprite: Sprite) {
+    // Draw bullets
+    this.projectiles.forEach((bullet) => {
+      bullet.draw(sprite);
+    });
+    if (Player.ownBible) this.shield.draw(sprite);
     if (this.health <= 0) {
       soundManager.playSFX("gameOver");
       soundManager.music.pause();
@@ -458,15 +519,14 @@ export class Player extends GameObject {
       return;
     }
     this.sourceX = this.currentFrame * this.frameWidth;
-    // Global.CTX.save(); // Save the current state of the canvas
+    Global.CTX.save(); // Save the current state of the canvas
 
-    // Apply red tint filter if the player is damaged
     // if (this.isDamaged) {
     //   Global.CTX.filter = "hue-rotate(-50deg) saturate(200%)";
     // } else {
     //   Global.CTX.filter = "none";
     // }
-    // Global.CTX.restore(); // Restore the Global.CANVAS state
+    Global.CTX.restore(); // Restore the Global.CANVAS state
     Global.CTX.save(); // Save the current state of the canvas
 
     if (this.direction === "left") {

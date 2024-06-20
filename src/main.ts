@@ -38,7 +38,7 @@ controlls.keyup();
 
 // Function to get a random spawn interval within the specified range
 function getRandomSpawnInterval() {
-  return Math.random() * Math.max(7000 - player.level * 500, 1000);
+  return Math.random() * Math.max(5000 - player.level * 500, 200);
 }
 
 // Function to spawn enemies at random positions outside the canvas
@@ -66,9 +66,37 @@ function spawnEnemy() {
       break;
   }
 
-  enemies.push(
-    new Enemy(x - Global.offsetX, y - Global.offsetY, 220, 26, player, enemies)
-  );
+  const random = Math.floor(Math.random() * 2);
+
+  if (random === 0) {
+    enemies.push(
+      new Enemy(
+        x - Global.offsetX,
+        y - Global.offsetY,
+        220,
+        37,
+        30,
+        26 + player.level * 1.2,
+        player,
+        enemies
+      )
+    );
+  }
+
+  if (player.level >= 3 && random === 1) {
+    enemies.push(
+      new Enemy(
+        x - Global.offsetX,
+        y - Global.offsetY,
+        250,
+        40,
+        40,
+        40 + player.level * 1.2,
+        player,
+        enemies
+      )
+    );
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
