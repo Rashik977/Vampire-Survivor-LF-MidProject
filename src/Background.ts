@@ -9,12 +9,13 @@ export class Background extends GameObject {
     this.image.src = src;
   }
   draw() {
+    console.log(Global.CANVAS_WIDTH / 2 + 2512);
     Global.CTX.drawImage(
       this.image,
-      this.X,
-      this.Y,
-      Global.CANVAS_WIDTH,
-      Global.CANVAS_HEIGHT
+      (-Global.CANVAS_WIDTH * 4) / 2,
+      (-Global.CANVAS_HEIGHT * 4) / 2,
+      Global.CANVAS_WIDTH * 5,
+      Global.CANVAS_HEIGHT * 5
     );
   }
 }

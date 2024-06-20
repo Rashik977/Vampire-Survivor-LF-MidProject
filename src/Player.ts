@@ -5,6 +5,7 @@ import { Enemy } from "./Enemy";
 import { checkCollision } from "./Utils";
 import { Upgrade } from "./Upgrade";
 import { soundManager } from "./SoundManager";
+import { Background } from "./Background";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -40,6 +41,8 @@ export class Player extends GameObject {
 
   public coinAttractionRange: number;
 
+  private background: Background;
+
   private upgradeChoices: Upgrade[] | null = null;
   private upgradeChoicePositions: {
     x: number;
@@ -50,7 +53,20 @@ export class Player extends GameObject {
 
   private hoveredChoiceIndex: number | null = null;
 
-  constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
+  // public isCollidingWithWall: boolean = false;
+  public isCollidingWithWallX: boolean = false;
+  public isCollidingWithWallY: boolean = false;
+
+  private gameLoop: any;
+
+  constructor(
+    x: number,
+    y: number,
+    playerIndex: number,
+    enemies: Enemy[],
+    gameLoop: any,
+    background: Background
+  ) {
     super(x, y);
     this.frameWidth = 37;
     this.frameHeight = 37;
@@ -59,7 +75,7 @@ export class Player extends GameObject {
     this.frameSpeed = 200;
     this.direction = "right";
     this.lastAnimationFrameTime = null;
-    this.speed = 0.05;
+    this.speed = 0.1;
 
     this.sourceX = 0;
     this.sourceY = playerIndex; // Assuming all frames are in a single row
@@ -85,6 +101,9 @@ export class Player extends GameObject {
     this.level = 1;
 
     this.coinAttractionRange = 60;
+
+    this.gameLoop = gameLoop;
+    this.background = background;
   }
 
   takeDamage(amount: number, timestamp: number) {
@@ -131,10 +150,19 @@ export class Player extends GameObject {
 
   drawUpgradeChoices() {
     if (!this.upgradeChoices) return;
-
-    Global.CTX.clearRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
+    Global.CTX.clearRect(
+      -Global.offsetX,
+      -Global.offsetY,
+      Global.CANVAS_WIDTH,
+      Global.CANVAS_HEIGHT
+    );
     Global.CTX.fillStyle = "rgba(0, 0, 0, 0.7)";
-    Global.CTX.fillRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
+    Global.CTX.fillRect(
+      -Global.offsetX,
+      -Global.offsetY,
+      Global.CANVAS_WIDTH,
+      Global.CANVAS_HEIGHT
+    );
 
     Global.CTX.fillStyle = "white";
     Global.CTX.font = "20px Arial";
@@ -146,8 +174,8 @@ export class Player extends GameObject {
       (this.upgradeChoices.length + 1);
 
     this.upgradeChoices.forEach((upgrade, index) => {
-      const y = spacing + index * (choiceHeight + spacing);
-      const x = Global.CANVAS_WIDTH / 2 - 150;
+      const y = spacing + index * (choiceHeight + spacing) - Global.offsetY;
+      const x = Global.CANVAS_WIDTH / 2 - 150 - Global.offsetX;
       const width = 300;
       const height = choiceHeight;
 
@@ -178,8 +206,8 @@ export class Player extends GameObject {
 
   handleUpgradeHover = (event: MouseEvent) => {
     const rect = Global.CANVAS.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    const mouseX = event.clientX - rect.left - Global.offsetX;
+    const mouseY = event.clientY - rect.top - Global.offsetY;
 
     let hoveredIndex: number | null = null;
 
@@ -204,8 +232,8 @@ export class Player extends GameObject {
     if (!this.upgradeChoices) return;
 
     const rect = Global.CANVAS.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    const mouseX = event.clientX - rect.left - Global.offsetX;
+    const mouseY = event.clientY - rect.top - Global.offsetY;
 
     this.upgradeChoicePositions.forEach((position, index) => {
       if (
@@ -220,6 +248,7 @@ export class Player extends GameObject {
           this.upgradeChoices = null;
           Global.PAUSE = false;
           Global.UPGRADE_CHOICES = false; // Reset upgrade choice state
+          requestAnimationFrame(this.gameLoop);
           Global.CANVAS.removeEventListener(
             "click",
             this.handleUpgradeSelection
@@ -253,8 +282,8 @@ export class Player extends GameObject {
   drawLevelProgressBar() {
     const progressBarWidth = Global.CANVAS_WIDTH - 40;
     const progressBarHeight = 30;
-    const progressBarX = 20;
-    const progressBarY = 10;
+    const progressBarX = 20 - Global.offsetX;
+    const progressBarY = 10 - Global.offsetY;
     const requiredDiamondsForNextLevel = this.level * 5;
     const progressPercentage =
       (this.collectedDiamonds % requiredDiamondsForNextLevel) /
@@ -312,18 +341,38 @@ export class Player extends GameObject {
     if (length > 0) {
       dx = (dx / length) * this.speed * deltaTime;
       dy = (dy / length) * this.speed * deltaTime;
+      if (!this.isCollidingWithWallX) {
+        Global.CTX.translate(-dx, 0);
+        Global.offsetX -= dx;
+      }
+      if (!this.isCollidingWithWallY) {
+        Global.CTX.translate(0, -dy);
+        Global.offsetY -= dy;
+      }
     }
 
     this.X += dx;
     this.Y += dy;
 
+    this.isCollidingWithWallX = false;
+    this.isCollidingWithWallY = false;
     // Check for collision with canvas boundaries
-    if (this.X - this.frameWidth < 0) this.X = this.frameWidth;
-    if (this.X + this.frameWidth > Global.CANVAS_WIDTH)
-      this.X = Global.CANVAS_WIDTH - this.frameWidth;
-    if (this.Y - this.frameHeight < 0) this.Y = this.frameHeight;
-    if (this.Y + this.frameHeight > Global.CANVAS_HEIGHT)
-      this.Y = Global.CANVAS_HEIGHT - this.frameHeight;
+    if (this.X + Global.CANVAS_WIDTH / 0.7 - this.frameWidth < 0) {
+      this.X = this.frameWidth - Global.CANVAS_WIDTH / 0.7;
+      this.isCollidingWithWallX = true;
+    }
+    if (this.X + this.frameWidth > Global.CANVAS_WIDTH * 2.5) {
+      this.X = Global.CANVAS_WIDTH * 2.5 - this.frameWidth;
+      this.isCollidingWithWallX = true;
+    }
+    if (this.Y + Global.CANVAS_HEIGHT / 0.7 - this.frameHeight < 0) {
+      this.Y = this.frameHeight - Global.CANVAS_HEIGHT / 0.7;
+      this.isCollidingWithWallY = true;
+    }
+    if (this.Y + this.frameHeight > Global.CANVAS_HEIGHT * 2.5) {
+      this.Y = Global.CANVAS_HEIGHT * 2.5 - this.frameHeight;
+      this.isCollidingWithWallY = true;
+    }
 
     // Handle attack
     if (
@@ -397,15 +446,17 @@ export class Player extends GameObject {
       console.log("Game Over");
       Global.CTX.drawImage(
         this.gameOverImage,
-        Global.CANVAS_WIDTH / 2 - this.gameOverImage.width / 2,
-        Global.CANVAS_HEIGHT / 2 - this.gameOverImage.height / 2
+        Global.CANVAS_WIDTH / 2 - this.gameOverImage.width / 2 - Global.offsetX,
+        Global.CANVAS_HEIGHT / 2 -
+          this.gameOverImage.height / 2 -
+          Global.offsetY
       );
       Global.CTX.fillStyle = "white";
       Global.CTX.font = "20px Arial";
       Global.CTX.fillText(
         "Press Enter to restart",
-        Global.CANVAS_WIDTH / 2 - 100,
-        Global.CANVAS_HEIGHT / 2 + 60
+        Global.CANVAS_WIDTH / 2 - 100 - Global.offsetX,
+        Global.CANVAS_HEIGHT / 2 + 60 - Global.offsetY
       );
       Global.GAMEOVER = true;
       Global.PAUSE = true;

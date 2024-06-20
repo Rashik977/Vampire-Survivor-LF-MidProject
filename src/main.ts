@@ -16,12 +16,14 @@ const enemies: Enemy[] = [];
 const currencies: Currency[] = [];
 
 const sprite = new Sprite("characters1.png", gameLoop);
-const background = new Background(0, 0, "bg_forest.png");
+const background = new Background(0, 0, "big-bg.png");
 const player = new Player(
   Global.CANVAS_WIDTH / 2,
   Global.CANVAS_HEIGHT / 2,
   0,
-  enemies
+  enemies,
+  gameLoop,
+  background
 );
 const controlls = new KeyControls();
 
@@ -65,7 +67,9 @@ function spawnEnemy() {
       break;
   }
 
-  enemies.push(new Enemy(x, y, 220, 26, player, enemies));
+  enemies.push(
+    new Enemy(x - Global.offsetX, y - Global.offsetY, 220, 26, player, enemies)
+  );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -83,8 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function drawVolumeSliders() {
   const sliderWidth = 200;
   const sliderHeight = 20;
-  const musicSliderX = (Global.CANVAS_WIDTH - sliderWidth) / 2;
-  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
+  const musicSliderX = (Global.CANVAS_WIDTH - sliderWidth) / 2 - Global.offsetX;
+  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50 - Global.offsetY;
   const sfxSliderX = musicSliderX;
   const sfxSliderY = musicSliderY + 50;
 
@@ -189,14 +193,13 @@ function gameLoop(timestamp: number) {
       Global.CTX.font = "60px Arial";
       Global.CTX.fillText(
         "PAUSED",
-        Global.CANVAS_WIDTH / 2 - 120,
-        Global.CANVAS_HEIGHT / 3
+        Global.CANVAS_WIDTH / 2 - 120 - Global.offsetX,
+        Global.CANVAS_HEIGHT / 3 - Global.offsetY
       );
       drawVolumeSliders();
     }
     pauseTimestamp = timestamp;
     lastFrameTime = timestamp;
-    requestAnimationFrame(gameLoop);
     return;
   }
 
@@ -239,7 +242,12 @@ function gameLoop(timestamp: number) {
     currency.update(deltaTime);
   }
 
-  Global.CTX.clearRect(0, 0, Global.CANVAS_WIDTH, Global.CANVAS_HEIGHT);
+  Global.CTX.clearRect(
+    -Global.offsetX,
+    -Global.offsetY,
+    Global.CANVAS_WIDTH,
+    Global.CANVAS_HEIGHT
+  );
 
   background.draw();
 
