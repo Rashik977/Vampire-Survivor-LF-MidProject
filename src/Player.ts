@@ -5,7 +5,6 @@ import { Enemy } from "./Enemy";
 import { checkCollision } from "./Utils";
 import { Upgrade } from "./Upgrade";
 import { soundManager } from "./SoundManager";
-import { Background } from "./Background";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -62,8 +61,7 @@ export class Player extends GameObject {
     y: number,
     playerIndex: number,
     enemies: Enemy[],
-    gameLoop: any,
-    background: Background
+    gameLoop: any
   ) {
     super(x, y);
     this.frameWidth = 37;
