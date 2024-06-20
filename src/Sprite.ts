@@ -1,10 +1,11 @@
+import { Global } from "./Global";
 export class Sprite {
   public spriteSheet: HTMLImageElement;
-  constructor(spriteSheet: string, gameLoop: any) {
+  constructor(spriteSheet: string) {
     this.spriteSheet = new Image();
     this.spriteSheet.src = spriteSheet;
     this.spriteSheet.onload = () => {
-      requestAnimationFrame(gameLoop);
+      Global.SpriteLoaded = true;
     };
   }
 }

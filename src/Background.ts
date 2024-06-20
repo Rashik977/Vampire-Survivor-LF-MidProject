@@ -7,6 +7,9 @@ export class Background extends GameObject {
     super(x, y);
     this.image = new Image();
     this.image.src = src;
+    this.image.onload = () => {
+      Global.BackgroundLoaded = true;
+    };
   }
   draw() {
     Global.CTX.drawImage(

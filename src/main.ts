@@ -15,7 +15,7 @@ Global.CANVAS.style.border = `1px solid ${Global.CANVAS_BORDER_COLOR}`;
 const enemies: Enemy[] = [];
 const currencies: Currency[] = [];
 
-const sprite = new Sprite("characters1.png", gameLoop);
+const sprite = new Sprite("characters1.png");
 const background = new Background(0, 0, "big-bg.png");
 const player = new Player(
   Global.CANVAS_WIDTH / 2,
@@ -35,6 +35,27 @@ let spawnInterval = 5000;
 
 controlls.keydown(gameLoop);
 controlls.keyup();
+
+function drawLoadingAnimation(timestamp: number) {
+  const centerX = Global.CANVAS.width / 2;
+  const centerY = Global.CANVAS.height / 2;
+  const radius = 30;
+  const lineWidth = 10;
+
+  Global.CTX.clearRect(0, 0, Global.CANVAS.width, Global.CANVAS.height);
+
+  Global.CTX.strokeStyle = "white";
+  Global.CTX.lineWidth = lineWidth;
+  Global.CTX.beginPath();
+  Global.CTX.arc(
+    centerX,
+    centerY,
+    radius,
+    0,
+    (Math.PI * 2 * (timestamp % 1000)) / 1000
+  );
+  Global.CTX.stroke();
+}
 
 // Function to get a random spawn interval within the specified range
 function getRandomSpawnInterval() {
@@ -190,6 +211,12 @@ Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
 });
 
 function gameLoop(timestamp: number) {
+  console.log(Global.BackgroundLoaded, Global.SpriteLoaded);
+  if (!Global.BackgroundLoaded || !Global.SpriteLoaded) {
+    drawLoadingAnimation(timestamp);
+    requestAnimationFrame(gameLoop);
+    return;
+  }
   if (Global.PAUSE) {
     if (!soundManager.music.paused) {
       soundManager.music.pause();
@@ -275,3 +302,5 @@ function gameLoop(timestamp: number) {
   // Request the next frame
   requestAnimationFrame(gameLoop);
 }
+
+requestAnimationFrame(gameLoop);
