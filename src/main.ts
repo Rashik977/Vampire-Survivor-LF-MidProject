@@ -22,8 +22,7 @@ const player = new Player(
   Global.CANVAS_HEIGHT / 2,
   0,
   enemies,
-  gameLoop,
-  background
+  gameLoop
 );
 const controlls = new KeyControls();
 
