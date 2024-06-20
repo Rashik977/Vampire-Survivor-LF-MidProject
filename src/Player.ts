@@ -147,12 +147,6 @@ export class Player extends GameObject {
     Global.CANVAS.addEventListener("mousemove", this.handleUpgradeHover);
   }
 
-  // drawDiamondsCounter() {
-  //   Global.CTX.fillStyle = "white";
-  //   Global.CTX.font = "20px Arial";
-  //   Global.CTX.fillText(`Diamonds: ${this.collectedDiamonds}`, 20, 30);
-  // }
-
   drawUpgradeChoices() {
     if (!this.upgradeChoices) return;
     Global.CTX.clearRect(

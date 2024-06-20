@@ -161,10 +161,7 @@ function drawSlider(
   Global.CTX.fillText(label, x, y - 10);
 }
 
-let isDraggingMusicSlider = false;
-let isDraggingSFXSlider = false;
-
-Global.CANVAS.addEventListener("mousedown", (event: any) => {
+Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
   const { offsetX, offsetY } = event;
   const musicSliderX = (Global.CANVAS_WIDTH - 200) / 2;
   const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
@@ -177,34 +174,19 @@ Global.CANVAS.addEventListener("mousedown", (event: any) => {
     offsetY >= musicSliderY &&
     offsetY <= musicSliderY + 20
   ) {
-    isDraggingMusicSlider = true;
+    const value = Math.max(0, Math.min(1, (offsetX - musicSliderX) / 200));
+    soundManager.updateVolume(value, soundManager.sfxVolume);
+    drawVolumeSliders();
   } else if (
     offsetX >= sfxSliderX &&
     offsetX <= sfxSliderX + 200 &&
     offsetY >= sfxSliderY &&
     offsetY <= sfxSliderY + 20
   ) {
-    isDraggingSFXSlider = true;
+    const value = Math.max(0, Math.min(1, (offsetX - sfxSliderX) / 200));
+    soundManager.updateVolume(soundManager.musicVolume, value);
+    drawVolumeSliders();
   }
-});
-
-Global.CANVAS.addEventListener("mousemove", (event: any) => {
-  if (isDraggingMusicSlider || isDraggingSFXSlider) {
-    const { offsetX } = event;
-    const sliderX = (Global.CANVAS_WIDTH - 200) / 2;
-    const value = Math.max(0, Math.min(1, (offsetX - sliderX) / 200));
-
-    if (isDraggingMusicSlider) {
-      soundManager.updateVolume(value, soundManager.sfxVolume);
-    } else if (isDraggingSFXSlider) {
-      soundManager.updateVolume(soundManager.musicVolume, value);
-    }
-  }
-});
-
-Global.CANVAS.addEventListener("mouseup", () => {
-  isDraggingMusicSlider = false;
-  isDraggingSFXSlider = false;
 });
 
 function gameLoop(timestamp: number) {
