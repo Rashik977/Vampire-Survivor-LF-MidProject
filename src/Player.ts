@@ -41,8 +41,6 @@ export class Player extends GameObject {
 
   public coinAttractionRange: number;
 
-  private background: Background;
-
   private upgradeChoices: Upgrade[] | null = null;
   private upgradeChoicePositions: {
     x: number;
@@ -103,7 +101,6 @@ export class Player extends GameObject {
     this.coinAttractionRange = 60;
 
     this.gameLoop = gameLoop;
-    this.background = background;
   }
 
   takeDamage(amount: number, timestamp: number) {
