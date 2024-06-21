@@ -2,7 +2,6 @@ import { Global } from "../Global";
 import { Player } from "../Player";
 import { Upgrade } from "./Upgrade";
 import { Bullet } from "../Weapons/Bullets";
-import { Whip } from "../Weapons/Whip";
 
 export class UpgradeMenu {
   upgradeChoices: Upgrade[] | null = null;
