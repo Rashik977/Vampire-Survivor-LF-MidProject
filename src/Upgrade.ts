@@ -38,14 +38,16 @@ export class Upgrade {
     ];
 
     if (Player.ownGun) {
-      upgrades.splice(3, 1);
+      const gun = upgrades.filter((upgrade) => upgrade.type === "gun");
+      upgrades.splice(upgrades.indexOf(gun[0]), 1);
       upgrades.push(
         new Upgrade("gun upgrade", "Axe Upgrade", "Upgrade your Axe")
       );
     }
 
     if (Player.ownBible) {
-      upgrades.splice(5, 1);
+      const shield = upgrades.filter((upgrade) => upgrade.type === "shield");
+      upgrades.splice(upgrades.indexOf(shield[0]), 1);
       upgrades.push(
         new Upgrade("shield upgrade", "Bible Upgrade", "Upgrade your shield")
       );
@@ -53,7 +55,8 @@ export class Upgrade {
 
     // only 30% chance to get max health upgrade
     if (Math.random() > 0.7) {
-      upgrades.splice(1, 1);
+      const health = upgrades.filter((upgrade) => upgrade.type === "health");
+      upgrades.splice(upgrades.indexOf(health[0]), 1);
       upgrades.push(
         new Upgrade("maxHealth", "Increase Health to Max", "Fill your health")
       );

@@ -113,9 +113,9 @@ export class Player extends GameObject {
   }
 
   takeDamage(amount: number, timestamp: number) {
+    soundManager.playSFX("take_damage");
     if (timestamp - this.lastDamageTime > this.damageCooldown) {
       this.health -= amount;
-      soundManager.playSFX("take_damage");
       this.lastDamageTime = timestamp;
       this.health = Math.max(this.health, 0); // Ensure health doesn't go below 0
     }

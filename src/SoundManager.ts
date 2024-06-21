@@ -16,7 +16,7 @@ class SoundManager {
       level_up: new Audio("sounds/level_up.ogg"),
       whip: new Audio("sounds/whip.ogg"),
       enemy_death: new Audio("sounds/enemy_death.ogg"),
-      take_damage: new Audio("sounds/take_damage.mp3"),
+      take_damage: new Audio("sounds/take_damage.ogg"),
     };
 
     this.updateVolume();

@@ -1,8 +1,8 @@
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-const canvasWidth: number = 1300;
-const canvasHeight: number = 1000;
+const canvasWidth: number = window.innerWidth - 100;
+const canvasHeight: number = window.innerHeight - 100;
 const canvasBorderColor: string = "black";
 
 export const Global: any = {

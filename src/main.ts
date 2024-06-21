@@ -16,7 +16,7 @@ const enemies: Enemy[] = [];
 const currencies: Currency[] = [];
 
 const sprite = new Sprite("characters1.png");
-const background = new Background(0, 0, "big-bg.png");
+const background = new Background(0, 0, "background.jpg");
 const player = new Player(
   Global.CANVAS_WIDTH / 2,
   Global.CANVAS_HEIGHT / 2,
@@ -211,7 +211,6 @@ Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
 });
 
 function gameLoop(timestamp: number) {
-  console.log(Global.BackgroundLoaded, Global.SpriteLoaded);
   if (!Global.BackgroundLoaded || !Global.SpriteLoaded) {
     drawLoadingAnimation(timestamp);
     requestAnimationFrame(gameLoop);
