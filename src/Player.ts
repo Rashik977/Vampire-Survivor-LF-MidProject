@@ -58,8 +58,8 @@ export class Player extends GameObject {
 
   private gameLoop: any;
 
-  public static ownGun: boolean = true;
-  public static ownBible: boolean = true;
+  public static ownGun: boolean = false;
+  public static ownBible: boolean = false;
 
   private projectiles: Bullet[] = [];
   private projectileCooldown: number = 1000; // 0.5 second cooldown

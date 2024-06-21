@@ -59,7 +59,7 @@ function drawLoadingAnimation(timestamp: number) {
 
 // Function to get a random spawn interval within the specified range
 function getRandomSpawnInterval() {
-  return Math.random() * Math.max(5000 - player.level * 500, 200);
+  return Math.random() * Math.max(4000 - player.level * 500, 200);
 }
 
 // Function to spawn enemies at random positions outside the canvas
@@ -89,7 +89,7 @@ function spawnEnemy() {
 
   const random = Math.floor(Math.random() * 2);
 
-  if (random === 0) {
+  if (player.level < 3 || random === 0) {
     enemies.push(
       new Enemy(
         x - Global.offsetX,
