@@ -211,7 +211,20 @@ Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
 });
 
 function gameLoop(timestamp: number) {
-  if (!Global.BackgroundLoaded || !Global.SpriteLoaded) {
+  console.log(
+    "audio loaded",
+    soundManager.audioLoaded,
+    "sprite loaded",
+    Global.SpriteLoaded,
+    "background loaded",
+    Global.BackgroundLoaded
+  );
+  soundManager.checkIfAudioLoaded();
+  if (
+    !Global.BackgroundLoaded ||
+    !Global.SpriteLoaded ||
+    !soundManager.audioLoaded
+  ) {
     drawLoadingAnimation(timestamp);
     requestAnimationFrame(gameLoop);
     return;

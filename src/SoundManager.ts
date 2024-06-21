@@ -3,6 +3,7 @@ class SoundManager {
   public sfxVolume: number;
   public music: HTMLAudioElement;
   public sfx: { [key: string]: HTMLAudioElement };
+  public audioLoaded: boolean = false;
 
   constructor() {
     this.musicVolume = 0.5;
@@ -47,6 +48,21 @@ class SoundManager {
         console.log("Error playing SFX:", error);
       });
     }
+  }
+
+  public checkIfAudioLoaded() {
+    const audioElements = [this.music, ...Object.values(this.sfx)];
+    let loadedCount = 0;
+
+    audioElements.forEach((audio) => {
+      audio.addEventListener("loadeddata", () => {
+        loadedCount++;
+        if (loadedCount === audioElements.length) {
+          this.audioLoaded = true;
+          console.log("All audio files loaded.");
+        }
+      });
+    });
   }
 }
 
