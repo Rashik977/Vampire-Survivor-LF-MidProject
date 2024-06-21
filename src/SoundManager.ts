@@ -59,7 +59,6 @@ class SoundManager {
         loadedCount++;
         if (loadedCount === audioElements.length) {
           this.audioLoaded = true;
-          console.log("All audio files loaded.");
         }
       });
     });

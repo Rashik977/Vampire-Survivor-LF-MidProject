@@ -1,12 +1,14 @@
 import "./style.css";
 import { Global } from "./Global";
-import { Background } from "./Background";
+import { BackgroundTile } from "./Background";
 import { Player } from "./Player";
 import { Sprite } from "./Sprite";
 import { KeyControls } from "./KeyControls";
 import { Enemy } from "./Enemy";
 import { Currency } from "./Currency";
 import { soundManager } from "./SoundManager";
+import { Obstacle } from "./Obstacles";
+import { isOverlapping } from "./Utils";
 
 Global.CANVAS.width = Global.CANVAS_WIDTH;
 Global.CANVAS.height = Global.CANVAS_HEIGHT;
@@ -16,7 +18,9 @@ const enemies: Enemy[] = [];
 const currencies: Currency[] = [];
 
 const sprite = new Sprite("characters1.png");
-const background = new Background(0, 0, "background.jpg");
+
+const backgroundTile = new BackgroundTile(sprite.spriteSheet);
+
 const player = new Player(
   Global.CANVAS_WIDTH / 2,
   Global.CANVAS_HEIGHT / 2,
@@ -57,9 +61,62 @@ function drawLoadingAnimation(timestamp: number) {
   Global.CTX.stroke();
 }
 
+const mapWidth = Global.CANVAS_WIDTH * 2.5;
+const mapHeight = Global.CANVAS_HEIGHT * 2.5;
+
+function getRandomPosition() {
+  const direction = Math.random() < 0.5 ? -1 : 1;
+  const direction1 = Math.random() < 0.5 ? -1 : 1;
+  const x = Math.random() * mapWidth * direction;
+  const y = Math.random() * mapHeight * direction1;
+
+  return { x, y };
+}
+
+function placeObstaclesRandomly(
+  sprite: Sprite,
+  numObstacles: number,
+  obstacleWidth: number,
+  obstacleHeight: number
+) {
+  const obstacles: Obstacle[] = [];
+
+  for (let i = 0; i < numObstacles; i++) {
+    let position;
+    do {
+      position = getRandomPosition();
+    } while (
+      isOverlapping(
+        position.x,
+        position.y,
+        obstacleWidth,
+        obstacleHeight,
+        obstacles
+      )
+    );
+
+    obstacles.push(
+      new Obstacle(
+        position.x,
+        position.y,
+        obstacleWidth,
+        obstacleHeight,
+        sprite,
+        Math.floor(Math.random() * 14) * 40,
+        500
+      )
+    ); // Assuming obstacles are from the same sprite position
+  }
+
+  return obstacles;
+}
+
+// Load obstacles
+const obstacles: Obstacle[] = placeObstaclesRandomly(sprite, 200, 40, 50);
+
 // Function to get a random spawn interval within the specified range
 function getRandomSpawnInterval() {
-  return Math.random() * Math.max(4000 - player.level * 500, 200);
+  return Math.random() * Math.max(4500 - player.level * 500, 500);
 }
 
 // Function to spawn enemies at random positions outside the canvas
@@ -97,7 +154,7 @@ function spawnEnemy() {
         220,
         37,
         30,
-        26 + player.level * 1.2,
+        26 + player.level,
         player,
         enemies
       )
@@ -112,7 +169,7 @@ function spawnEnemy() {
         250,
         40,
         40,
-        40 + player.level * 1.2,
+        40 + player.level,
         player,
         enemies
       )
@@ -211,24 +268,20 @@ Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
 });
 
 function gameLoop(timestamp: number) {
-  console.log(
-    "audio loaded",
-    soundManager.audioLoaded,
-    "sprite loaded",
-    Global.SpriteLoaded,
-    "background loaded",
-    Global.BackgroundLoaded
-  );
-  soundManager.checkIfAudioLoaded();
-  if (
-    !Global.BackgroundLoaded ||
-    !Global.SpriteLoaded ||
-    !soundManager.audioLoaded
-  ) {
-    drawLoadingAnimation(timestamp);
-    requestAnimationFrame(gameLoop);
-    return;
-  }
+  // console.log(
+  //   "audio loaded",
+  //   soundManager.audioLoaded,
+  //   "sprite loaded",
+  //   Global.SpriteLoaded,
+  //   "background loaded",
+  //   Global.BackgroundLoaded
+  // );
+  // soundManager.checkIfAudioLoaded();
+  // if (!Global.SpriteLoaded) {
+  //   drawLoadingAnimation(timestamp);
+  //   requestAnimationFrame(gameLoop);
+  //   return;
+  // }
   if (Global.PAUSE) {
     if (!soundManager.music.paused) {
       soundManager.music.pause();
@@ -297,19 +350,23 @@ function gameLoop(timestamp: number) {
     Global.CANVAS_HEIGHT
   );
 
-  background.draw();
+  backgroundTile.draw(Global.CTX);
 
-  // Draw the current frame
-  for (const enemy of enemies) {
-    enemy.enemyDraw(sprite);
-    // enemy.drawCollisionBorder();
-  }
   for (const currency of currencies) {
     currency.draw(sprite);
   }
 
+  // Draw obstacles
+  for (const obstacle of obstacles) {
+    obstacle.draw();
+  }
+
+  // Draw the current frame
+  for (const enemy of enemies) {
+    enemy.enemyDraw(sprite);
+  }
+
   player.playerDraw(sprite);
-  // player.drawCollisionBorder();
 
   // Request the next frame
   requestAnimationFrame(gameLoop);
