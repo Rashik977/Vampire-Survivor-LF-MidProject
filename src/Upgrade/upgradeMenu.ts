@@ -2,6 +2,7 @@ import { Global } from "../Global";
 import { Player } from "../Player";
 import { Upgrade } from "./Upgrade";
 import { Bullet } from "../Weapons/Bullets";
+import { Whip } from "../Weapons/Whip";
 
 export class UpgradeMenu {
   upgradeChoices: Upgrade[] | null = null;
@@ -165,8 +166,9 @@ export class UpgradeMenu {
         Bullet.damage += 10;
         break;
       case "whip upgrade":
-        this.player.damage += 5;
-        this.player.damageCooldown -= 100;
+        this.player.whip.damage += 5;
+        this.player.whip.damageCooldown -= 100;
+        this.player.whip.attackCooldown -= 100;
         break;
       case "shield":
         Player.ownBible = true;

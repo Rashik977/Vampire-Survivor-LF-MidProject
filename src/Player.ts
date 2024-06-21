@@ -2,7 +2,7 @@ import { GameObject } from "./GameObject";
 import { Global } from "./Global";
 import { Sprite } from "./Sprites/Sprite";
 import { Enemy } from "./Enemy/Enemy";
-import { checkCollisionPlayer, normalize } from "./Utils/Utils";
+import { normalize } from "./Utils/Utils";
 import { soundManager } from "./Sound/SoundManager";
 import { Bullet } from "./Weapons/Bullets";
 import { Shield } from "./Weapons/Shield";
@@ -28,14 +28,10 @@ export class Player extends GameObject {
   public health: number;
   public maxHealth: number;
 
-  public damage: number;
-  public damageCooldown: number;
   private lastDamageTime: number;
 
   private lastAttackTime: number | null; // For cooldown management
-  public attackCooldown: number; // Cooldown duration in milliseconds
   private isAttacking: boolean; // To handle attack state
-  private whipLength: number; // Length of the whip
   private enemies: Enemy[]; // Reference to the enemies
 
   public collectedDiamonds: number;
@@ -49,12 +45,14 @@ export class Player extends GameObject {
 
   public static ownGun: boolean = false;
   public static ownBible: boolean = false;
+  public static ownWhip: boolean = true;
 
   private projectiles: Bullet[] = [];
   public projectileCooldown: number = 1000; // 0.5 second cooldown
   private lastProjectileTime: number | null = null;
 
   public shield: Shield = new Shield(this, 2, 5, 80);
+  public whip: Whip = new Whip(this, 10, 1000, 80, 1000);
 
   private gameOver: GameOver;
 
@@ -75,18 +73,13 @@ export class Player extends GameObject {
 
     this.maxHealth = 100;
     this.health = this.maxHealth;
-    this.damageCooldown = 1000; // 1 second cooldown between damage
     this.lastDamageTime = 0;
 
     this.lastAttackTime = null;
-    this.attackCooldown = 1000; // 1 second cooldown
     this.isAttacking = false;
-    this.whipLength = 80; // Length of the whip
     this.enemies = enemies; // Reference to the enemies
 
-    this.damage = 10; // Damage amount
-
-    this.collectedDiamonds = 4;
+    this.collectedDiamonds = 0;
     this.level = 1;
 
     this.coinAttractionRange = 60;
@@ -96,7 +89,7 @@ export class Player extends GameObject {
 
   takeDamage(amount: number, timestamp: number) {
     soundManager.playSFX("take_damage");
-    if (timestamp - this.lastDamageTime > this.damageCooldown) {
+    if (timestamp - this.lastDamageTime > this.whip.damageCooldown) {
       this.health -= amount;
       this.lastDamageTime = timestamp;
       this.health = Math.max(this.health, 0); // Ensure health doesn't go below 0
@@ -128,6 +121,7 @@ export class Player extends GameObject {
     }
 
     if (Player.ownBible) this.shield.update(deltaTime, this.enemies);
+    if (Player.ownWhip) this.whip.update();
 
     // Normalize the movement to ensure consistent speed in all directions
     const length = Math.sqrt(dx * dx + dy * dy);
@@ -169,20 +163,21 @@ export class Player extends GameObject {
 
     // Handle attack
     if (
-      keys.attack &&
+      Player.ownWhip &&
       !this.isAttacking &&
       (!this.lastAttackTime ||
-        timestamp - this.lastAttackTime >= this.attackCooldown)
+        timestamp - this.lastAttackTime >= this.whip.attackCooldown)
     ) {
       this.isAttacking = true;
       this.lastAttackTime = timestamp;
-      this.performAttack();
+      this.whipAttack();
     }
 
     if (
+      Player.ownWhip &&
       this.isAttacking &&
       (!this.lastAttackTime ||
-        timestamp - this.lastAttackTime >= this.attackCooldown / 2)
+        timestamp - this.lastAttackTime >= this.whip.attackCooldown / 2)
     ) {
       this.isAttacking = false;
     }
@@ -219,28 +214,16 @@ export class Player extends GameObject {
     );
   }
 
-  performAttack() {
+  whipAttack() {
     soundManager.playSFX("whip");
     const whipEndX =
       this.direction === "right"
-        ? this.X + this.whipLength
-        : this.X - this.whipLength;
+        ? this.X + this.whip.whipLength
+        : this.X - this.whip.whipLength;
     const whipEndY = this.Y;
 
     this.enemies.forEach((enemy) => {
-      if (
-        checkCollisionPlayer(
-          {
-            X: whipEndX,
-            Y: whipEndY,
-            frameHeight: this.frameHeight,
-            frameWidth: this.frameWidth,
-          },
-          enemy
-        )
-      ) {
-        enemy.takeDamage(this.damage);
-      }
+      this.whip.enemyHit(whipEndX, whipEndY, enemy);
     });
   }
 
@@ -312,15 +295,13 @@ export class Player extends GameObject {
       );
     }
 
-    const whip = new Whip(this.X, this.Y);
-    whip.draw(
+    this.whip.draw(
       this.isAttacking,
       this.direction,
       sprite,
       40,
       20,
-      this.playerScale,
-      this.whipLength
+      this.playerScale
     );
 
     Global.CTX.restore(); // Restore the Global.CANVAS state

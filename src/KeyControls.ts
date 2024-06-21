@@ -12,7 +12,6 @@ export class KeyControls {
       right: false,
       up: false,
       down: false,
-      attack: true,
     };
   }
 
