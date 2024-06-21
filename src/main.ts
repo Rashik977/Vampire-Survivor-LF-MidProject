@@ -268,20 +268,12 @@ Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
 });
 
 function gameLoop(timestamp: number) {
-  // console.log(
-  //   "audio loaded",
-  //   soundManager.audioLoaded,
-  //   "sprite loaded",
-  //   Global.SpriteLoaded,
-  //   "background loaded",
-  //   Global.BackgroundLoaded
-  // );
-  // soundManager.checkIfAudioLoaded();
-  // if (!Global.SpriteLoaded) {
-  //   drawLoadingAnimation(timestamp);
-  //   requestAnimationFrame(gameLoop);
-  //   return;
-  // }
+  soundManager.checkIfAudioLoaded();
+  if (!Global.SpriteLoaded || !soundManager.audioLoaded) {
+    drawLoadingAnimation(timestamp);
+    requestAnimationFrame(gameLoop);
+    return;
+  }
   if (Global.PAUSE) {
     if (!soundManager.music.paused) {
       soundManager.music.pause();

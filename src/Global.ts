@@ -16,6 +16,6 @@ export const Global: any = {
   UPGRADE: false,
   offsetX: 0,
   offsetY: 0,
-  BackgroundLoaded: false,
   SpriteLoaded: false,
+  AudioLoaded: false,
 };

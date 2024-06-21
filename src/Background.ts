@@ -52,6 +52,8 @@ export class BackgroundTile {
 
     // Draw the entire tile map on the off-screen canvas
     this.tileImage.onload = () => {
+      console.log("Sprite loaded");
+      Global.SpriteLoaded = true;
       this.drawTileMap();
     };
   }
