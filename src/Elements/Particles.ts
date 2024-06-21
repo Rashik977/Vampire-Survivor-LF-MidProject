@@ -1,5 +1,5 @@
-import { Global } from "./Global";
-import { GameObject } from "./GameObject";
+import { Global } from "../Global";
+import { GameObject } from "../GameObject";
 
 export class Particle extends GameObject {
   public size: number;

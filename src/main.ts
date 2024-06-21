@@ -1,34 +1,38 @@
 import "./style.css";
 import { Global } from "./Global";
-import { BackgroundTile } from "./Background";
+import { BackgroundTile } from "./Background/Background";
 import { Player } from "./Player";
-import { Sprite } from "./Sprite";
+import { Sprite } from "./Sprites/Sprite";
 import { KeyControls } from "./KeyControls";
-import { Enemy } from "./Enemy";
-import { Currency } from "./Currency";
-import { soundManager } from "./SoundManager";
-import { Obstacle } from "./Obstacles";
-import { isOverlapping } from "./Utils";
+import { Enemy } from "./Enemy/Enemy";
+import { Currency } from "./Elements/Currency";
+import { soundManager } from "./Sound/SoundManager";
+import { Obstacle } from "./Background/Obstacles";
+import { drawLoadingAnimation } from "./Utils/Loading";
+import { placeObstaclesRandomly } from "./Background/PlaceObstacles";
+import { spawnEnemy, getRandomSpawnInterval } from "./Enemy/spawnEnemy";
+import { addVolumeListener, drawVolumeSliders } from "./Sound/volumeSlider";
+import { UpgradeMenu } from "./Upgrade/upgradeMenu";
 
-Global.CANVAS.width = Global.CANVAS_WIDTH;
-Global.CANVAS.height = Global.CANVAS_HEIGHT;
-Global.CANVAS.style.border = `1px solid ${Global.CANVAS_BORDER_COLOR}`;
+Global.init();
 
 const enemies: Enemy[] = [];
 const currencies: Currency[] = [];
 
 const sprite = new Sprite("characters1.png");
-
 const backgroundTile = new BackgroundTile(sprite.spriteSheet);
 
 const player = new Player(
   Global.CANVAS_WIDTH / 2,
   Global.CANVAS_HEIGHT / 2,
   0,
-  enemies,
-  gameLoop
+  enemies
 );
+const upgradeMenu = new UpgradeMenu(gameLoop, player);
+
 const controlls = new KeyControls();
+controlls.keydown(gameLoop);
+controlls.keyup();
 
 let lastFrameTime: number = 0;
 let pauseTimestamp: number | null = null;
@@ -37,145 +41,8 @@ let pauseTimestamp: number | null = null;
 let elapsedSpawnTime = 0;
 let spawnInterval = 5000;
 
-controlls.keydown(gameLoop);
-controlls.keyup();
-
-function drawLoadingAnimation(timestamp: number) {
-  const centerX = Global.CANVAS.width / 2;
-  const centerY = Global.CANVAS.height / 2;
-  const radius = 30;
-  const lineWidth = 10;
-
-  Global.CTX.clearRect(0, 0, Global.CANVAS.width, Global.CANVAS.height);
-
-  Global.CTX.strokeStyle = "white";
-  Global.CTX.lineWidth = lineWidth;
-  Global.CTX.beginPath();
-  Global.CTX.arc(
-    centerX,
-    centerY,
-    radius,
-    0,
-    (Math.PI * 2 * (timestamp % 1000)) / 1000
-  );
-  Global.CTX.stroke();
-}
-
-const mapWidth = Global.CANVAS_WIDTH * 2.5;
-const mapHeight = Global.CANVAS_HEIGHT * 2.5;
-
-function getRandomPosition() {
-  const direction = Math.random() < 0.5 ? -1 : 1;
-  const direction1 = Math.random() < 0.5 ? -1 : 1;
-  const x = Math.random() * mapWidth * direction;
-  const y = Math.random() * mapHeight * direction1;
-
-  return { x, y };
-}
-
-function placeObstaclesRandomly(
-  sprite: Sprite,
-  numObstacles: number,
-  obstacleWidth: number,
-  obstacleHeight: number
-) {
-  const obstacles: Obstacle[] = [];
-
-  for (let i = 0; i < numObstacles; i++) {
-    let position;
-    do {
-      position = getRandomPosition();
-    } while (
-      isOverlapping(
-        position.x,
-        position.y,
-        obstacleWidth,
-        obstacleHeight,
-        obstacles
-      )
-    );
-
-    obstacles.push(
-      new Obstacle(
-        position.x,
-        position.y,
-        obstacleWidth,
-        obstacleHeight,
-        sprite,
-        Math.floor(Math.random() * 14) * 40,
-        500
-      )
-    ); // Assuming obstacles are from the same sprite position
-  }
-
-  return obstacles;
-}
-
 // Load obstacles
 const obstacles: Obstacle[] = placeObstaclesRandomly(sprite, 200, 40, 50);
-
-// Function to get a random spawn interval within the specified range
-function getRandomSpawnInterval() {
-  return Math.random() * Math.max(4500 - player.level * 500, 500);
-}
-
-// Function to spawn enemies at random positions outside the canvas
-function spawnEnemy() {
-  const side = Math.floor(Math.random() * 4); // Randomize the side (0: top, 1: right, 2: bottom, 3: left)
-  let x: number = 0,
-    y: number = 0;
-
-  switch (side) {
-    case 0: // Top
-      x = Math.random() * Global.CANVAS_WIDTH;
-      y = -50; // Spawn above the canvas
-      break;
-    case 1: // Right
-      x = Global.CANVAS_WIDTH + 50; // Spawn to the right of the canvas
-      y = Math.random() * Global.CANVAS_HEIGHT;
-      break;
-    case 2: // Bottom
-      x = Math.random() * Global.CANVAS_WIDTH;
-      y = Global.CANVAS_HEIGHT + 50; // Spawn below the canvas
-      break;
-    case 3: // Left
-      x = -50; // Spawn to the left of the canvas
-      y = Math.random() * Global.CANVAS_HEIGHT;
-      break;
-  }
-
-  const random = Math.floor(Math.random() * 2);
-
-  if (player.level < 3 || random === 0) {
-    enemies.push(
-      new Enemy(
-        x - Global.offsetX,
-        y - Global.offsetY,
-        220,
-        37,
-        30,
-        26 + player.level,
-        player,
-        enemies
-      )
-    );
-  }
-
-  if (player.level >= 3 && random === 1) {
-    enemies.push(
-      new Enemy(
-        x - Global.offsetX,
-        y - Global.offsetY,
-        250,
-        40,
-        40,
-        40 + player.level,
-        player,
-        enemies
-      )
-    );
-  }
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   const handleInteraction = () => {
@@ -189,83 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", handleInteraction);
 });
 
-function drawVolumeSliders() {
-  const sliderWidth = 200;
-  const sliderHeight = 20;
-  const musicSliderX = (Global.CANVAS_WIDTH - sliderWidth) / 2 - Global.offsetX;
-  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50 - Global.offsetY;
-  const sfxSliderX = musicSliderX;
-  const sfxSliderY = musicSliderY + 50;
+addVolumeListener();
 
-  // Draw music volume slider
-  drawSlider(
-    musicSliderX,
-    musicSliderY,
-    sliderWidth,
-    sliderHeight,
-    soundManager.musicVolume,
-    "Music Volume"
-  );
-
-  // Draw SFX volume slider
-  drawSlider(
-    sfxSliderX,
-    sfxSliderY,
-    sliderWidth,
-    sliderHeight,
-    soundManager.sfxVolume,
-    "SFX Volume"
-  );
-}
-
-function drawSlider(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  value: number,
-  label: string
-) {
-  Global.CTX.fillStyle = "white";
-  Global.CTX.fillRect(x, y, width, height);
-  Global.CTX.fillStyle = "green";
-  Global.CTX.fillRect(x, y, width * value, height);
-  Global.CTX.strokeStyle = "black";
-  Global.CTX.lineWidth = 3;
-  Global.CTX.strokeRect(x, y, width, height);
-
-  Global.CTX.fillStyle = "white";
-  Global.CTX.font = "16px Arial";
-  Global.CTX.fillText(label, x, y - 10);
-}
-
-Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
-  const { offsetX, offsetY } = event;
-  const musicSliderX = (Global.CANVAS_WIDTH - 200) / 2;
-  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
-  const sfxSliderX = musicSliderX;
-  const sfxSliderY = musicSliderY + 50;
-
-  if (
-    offsetX >= musicSliderX &&
-    offsetX <= musicSliderX + 200 &&
-    offsetY >= musicSliderY &&
-    offsetY <= musicSliderY + 20
-  ) {
-    const value = Math.max(0, Math.min(1, (offsetX - musicSliderX) / 200));
-    soundManager.updateVolume(value, soundManager.sfxVolume);
-    drawVolumeSliders();
-  } else if (
-    offsetX >= sfxSliderX &&
-    offsetX <= sfxSliderX + 200 &&
-    offsetY >= sfxSliderY &&
-    offsetY <= sfxSliderY + 20
-  ) {
-    const value = Math.max(0, Math.min(1, (offsetX - sfxSliderX) / 200));
-    soundManager.updateVolume(soundManager.musicVolume, value);
-    drawVolumeSliders();
+function checkLevelUp() {
+  while (player.collectedDiamonds >= player.level * 5) {
+    player.collectedDiamonds = 0;
+    player.level += 1;
+    soundManager.playSFX("level_up");
+    upgradeMenu.promptUpgradeChoices();
   }
-});
+}
 
 function gameLoop(timestamp: number) {
   soundManager.checkIfAudioLoaded();
@@ -274,14 +74,12 @@ function gameLoop(timestamp: number) {
     requestAnimationFrame(gameLoop);
     return;
   }
+  checkLevelUp();
   if (Global.PAUSE) {
     if (!soundManager.music.paused) {
       soundManager.music.pause();
     }
-    if (Global.UPGRADE_CHOICES) {
-      // If the player is choosing upgrades, do not show the pause message
-      player.drawUpgradeChoices();
-    } else if (!Global.GAMEOVER) {
+    if (!Global.UPGRADE_CHOICES && !Global.GAMEOVER) {
       Global.CTX.fillStyle = "white";
       Global.CTX.font = "60px Arial";
       Global.CTX.fillText(
@@ -317,9 +115,9 @@ function gameLoop(timestamp: number) {
 
   // Check if it's time to spawn a new enemy
   if (elapsedSpawnTime >= spawnInterval) {
-    spawnEnemy();
+    spawnEnemy(player, enemies);
     elapsedSpawnTime = 0; // Reset the elapsed time
-    spawnInterval = getRandomSpawnInterval(); // Get a new random spawn interval
+    spawnInterval = getRandomSpawnInterval(player); // Get a new random spawn interval
   }
 
   //updating player and enemy animations and positions

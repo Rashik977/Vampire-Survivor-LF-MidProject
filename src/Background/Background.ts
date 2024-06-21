@@ -1,26 +1,5 @@
-import { Global } from "./Global";
-
-// export class Background extends GameObject {
-//   private image: HTMLImageElement;
-//   constructor(x: number, y: number, src: string) {
-//     super(x, y);
-//     this.image = new Image();
-//     this.image.src = src;
-//     this.image.onload = () => {
-//       Global.BackgroundLoaded = true;
-//     };
-//   }
-//   draw() {
-//     Global.CTX.drawImage(
-//       this.image,
-//       (-Global.CANVAS_WIDTH * 4) / 2,
-//       (-Global.CANVAS_HEIGHT * 4) / 2,
-//       Global.CANVAS_WIDTH * 5,
-//       Global.CANVAS_HEIGHT * 5
-//     );
-//   }
-// }
-
+import { Global } from "../Global";
+//Class to draw the background tiles
 export class BackgroundTile {
   private offScreenCanvas: HTMLCanvasElement;
   private offScreenCtx: CanvasRenderingContext2D;
@@ -52,7 +31,6 @@ export class BackgroundTile {
 
     // Draw the entire tile map on the off-screen canvas
     this.tileImage.onload = () => {
-      console.log("Sprite loaded");
       Global.SpriteLoaded = true;
       this.drawTileMap();
     };
@@ -84,39 +62,3 @@ export class BackgroundTile {
     );
   }
 }
-
-// public draw(ctx: CanvasRenderingContext2D) {
-//   const drawX = this.offScreenCanvas.width;
-//   const drawY = this.offScreenCanvas.height;
-
-//   // Draw the off-screen canvas onto the main canvas
-//   ctx.drawImage(this.offScreenCanvas, drawX, drawY);
-// }
-
-// // Usage example
-// const tileWidth = 85;
-// const tileHeight = 80;
-// const mapWidth = Global.CANVAS_WIDTH * 5;
-// const mapHeight = Global.CANVAS_HEIGHT * 5;
-// const background = new BackgroundTile(0, 0, "tile-sprite-sheet.png", 85, 80, Global.CANVAS_WIDTH * 5, Global.CANVAS_HEIGHT * 5);
-
-// draw() {
-//   const numTilesX = Math.ceil(this.mapWidth / this.tileWidth);
-//   const numTilesY = Math.ceil(this.mapHeight / this.tileHeight);
-
-//   for (let y = 0; y < numTilesY; y++) {
-//     for (let x = 0; x < numTilesX; x++) {
-//       Global.CTX.drawImage(
-//         this.tileImage,
-//         0,
-//         560,
-//         this.tileWidth,
-//         this.tileHeight, // Source
-//         x * this.tileWidth,
-//         y * this.tileHeight, // Destination
-//         this.tileWidth + 75,
-//         this.tileHeight + 70 // Destination dimensions
-//       );
-//     }
-//   }
-// }

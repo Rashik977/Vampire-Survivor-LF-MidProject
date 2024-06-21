@@ -1,9 +1,9 @@
 // Shield.ts
-import { GameObject } from "./GameObject";
-import { Global } from "./Global";
-import { Enemy } from "./Enemy";
-import { checkCollisionEnemy } from "./Utils";
-import { Sprite } from "./Sprite";
+import { GameObject } from "../GameObject";
+import { Global } from "../Global";
+import { Enemy } from "../Enemy/Enemy";
+import { checkCollisionEnemy } from "../Utils/Utils";
+import { Sprite } from "../Sprites/Sprite";
 
 export class Shield extends GameObject {
   public rotationSpeed: number;
@@ -76,8 +76,6 @@ export class Shield extends GameObject {
       this.width,
       this.height
     );
-    // ctx.fillStyle = "blue"; // Temporary color for the shield
-    // ctx.fillRect(-10, -10, this.width, this.height); // Draw a simple rectangle
     ctx.restore();
   }
 }

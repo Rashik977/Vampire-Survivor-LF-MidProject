@@ -1,6 +1,6 @@
-import { Global } from "./Global";
-import { Sprite } from "./Sprite";
-import { GameObject } from "./GameObject";
+import { Global } from "../Global";
+import { Sprite } from "../Sprites/Sprite";
+import { GameObject } from "../GameObject";
 
 export class Obstacle extends GameObject {
   public width: number;

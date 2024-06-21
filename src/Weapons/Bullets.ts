@@ -1,9 +1,9 @@
 // Bullet.ts
-import { Enemy } from "./Enemy";
-import { GameObject } from "./GameObject";
-import { Global } from "./Global";
-import { Sprite } from "./Sprite";
-import { checkCollisionEnemy } from "./Utils";
+import { Enemy } from "../Enemy/Enemy";
+import { GameObject } from "../GameObject";
+import { Global } from "../Global";
+import { Sprite } from "../Sprites/Sprite";
+import { checkCollisionEnemy } from "../Utils/Utils";
 
 export class Bullet extends GameObject {
   private speed: number;

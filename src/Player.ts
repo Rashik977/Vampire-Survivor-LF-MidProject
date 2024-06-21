@@ -1,12 +1,15 @@
 import { GameObject } from "./GameObject";
 import { Global } from "./Global";
-import { Sprite } from "./Sprite";
-import { Enemy } from "./Enemy";
-import { checkCollisionPlayer, normalize } from "./Utils";
-import { Upgrade } from "./Upgrade";
-import { soundManager } from "./SoundManager";
-import { Bullet } from "./Bullets";
-import { Shield } from "./Shield";
+import { Sprite } from "./Sprites/Sprite";
+import { Enemy } from "./Enemy/Enemy";
+import { checkCollisionPlayer, normalize } from "./Utils/Utils";
+import { soundManager } from "./Sound/SoundManager";
+import { Bullet } from "./Weapons/Bullets";
+import { Shield } from "./Weapons/Shield";
+import { drawHealthBar } from "./Elements/healthBar";
+import { GameOver } from "./Sprites/GameOver";
+import { Whip } from "./Weapons/Whip";
+import { drawLevelProgressBar } from "./Elements/levelProgressBar";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -15,65 +18,47 @@ export class Player extends GameObject {
   private currentFrame: number; // Index of the current frame
   private frameSpeed: number; // Speed of frame change in milliseconds
   public direction: string; // Possible values: 'right', 'left'
-  private speed: number;
+  public speed: number;
   private lastAnimationFrameTime: number | null;
 
   private sourceX: number;
   private sourceY: number;
   private playerScale: number;
 
-  private health: number;
-  private maxHealth: number;
+  public health: number;
+  public maxHealth: number;
 
-  private damage: number;
-  private damageCooldown: number;
+  public damage: number;
+  public damageCooldown: number;
   private lastDamageTime: number;
 
   private lastAttackTime: number | null; // For cooldown management
-  private attackCooldown: number; // Cooldown duration in milliseconds
+  public attackCooldown: number; // Cooldown duration in milliseconds
   private isAttacking: boolean; // To handle attack state
   private whipLength: number; // Length of the whip
   private enemies: Enemy[]; // Reference to the enemies
 
-  private gameOverImage: HTMLImageElement;
-
-  private collectedDiamonds: number;
+  public collectedDiamonds: number;
   public level: number;
 
   public coinAttractionRange: number;
-
-  private upgradeChoices: Upgrade[] | null = null;
-  private upgradeChoicePositions: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  }[] = [];
-
-  private hoveredChoiceIndex: number | null = null;
 
   // public isCollidingWithWall: boolean = false;
   public isCollidingWithWallX: boolean = false;
   public isCollidingWithWallY: boolean = false;
 
-  private gameLoop: any;
-
   public static ownGun: boolean = false;
   public static ownBible: boolean = false;
 
   private projectiles: Bullet[] = [];
-  private projectileCooldown: number = 1000; // 0.5 second cooldown
+  public projectileCooldown: number = 1000; // 0.5 second cooldown
   private lastProjectileTime: number | null = null;
 
-  private shield: Shield = new Shield(this, 2, 5, 80);
+  public shield: Shield = new Shield(this, 2, 5, 80);
 
-  constructor(
-    x: number,
-    y: number,
-    playerIndex: number,
-    enemies: Enemy[],
-    gameLoop: any
-  ) {
+  private gameOver: GameOver;
+
+  constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
     super(x, y);
     this.frameWidth = 37;
     this.frameHeight = 37;
@@ -101,15 +86,12 @@ export class Player extends GameObject {
 
     this.damage = 10; // Damage amount
 
-    this.gameOverImage = new Image();
-    this.gameOverImage.src = "gameOver.png";
-
-    this.collectedDiamonds = 0;
+    this.collectedDiamonds = 4;
     this.level = 1;
 
     this.coinAttractionRange = 60;
 
-    this.gameLoop = gameLoop;
+    this.gameOver = new GameOver("gameOver.png");
   }
 
   takeDamage(amount: number, timestamp: number) {
@@ -123,212 +105,7 @@ export class Player extends GameObject {
 
   collectDiamond() {
     this.collectedDiamonds += 1;
-    this.checkLevelUp();
     soundManager.playSFX("collect");
-  }
-
-  checkLevelUp() {
-    while (this.collectedDiamonds >= this.level * 5) {
-      this.collectedDiamonds = 0;
-      this.level += 1;
-      soundManager.playSFX("level_up");
-      this.promptUpgradeChoices();
-    }
-  }
-
-  promptUpgradeChoices() {
-    Global.PAUSE = true;
-    Global.UPGRADE_CHOICES = true; // Set upgrade choice state
-    this.upgradeChoices = Upgrade.getRandomUpgrades();
-    this.drawUpgradeChoices();
-
-    // Add mouse event listeners for selection and hover
-    Global.CANVAS.addEventListener("click", this.handleUpgradeSelection);
-    Global.CANVAS.addEventListener("mousemove", this.handleUpgradeHover);
-  }
-
-  drawUpgradeChoices() {
-    if (!this.upgradeChoices) return;
-    Global.CTX.clearRect(
-      -Global.offsetX,
-      -Global.offsetY,
-      Global.CANVAS_WIDTH,
-      Global.CANVAS_HEIGHT
-    );
-    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.7)";
-    Global.CTX.fillRect(
-      -Global.offsetX,
-      -Global.offsetY,
-      Global.CANVAS_WIDTH,
-      Global.CANVAS_HEIGHT
-    );
-
-    Global.CTX.fillStyle = "white";
-    Global.CTX.font = "20px Arial";
-
-    this.upgradeChoicePositions = [];
-    const choiceHeight = 100;
-    const spacing =
-      (Global.CANVAS_HEIGHT - this.upgradeChoices.length * choiceHeight) /
-      (this.upgradeChoices.length + 1);
-
-    this.upgradeChoices.forEach((upgrade, index) => {
-      const y = spacing + index * (choiceHeight + spacing) - Global.offsetY;
-      const x = Global.CANVAS_WIDTH / 2 - 150 - Global.offsetX;
-      const width = 300;
-      const height = choiceHeight;
-
-      // Store the position and size of the upgrade choice
-      this.upgradeChoicePositions.push({ x, y, width, height });
-
-      // Draw the border
-      Global.CTX.strokeStyle = "black";
-      Global.CTX.lineWidth = 3;
-      Global.CTX.strokeRect(x, y, width, height);
-
-      // Change the color if hovered
-      if (index === this.hoveredChoiceIndex) {
-        Global.CTX.fillStyle = "lightgrey";
-        Global.CTX.fillRect(x, y, width, height);
-        Global.CANVAS.style.cursor = "pointer";
-      } else {
-        Global.CTX.fillStyle = "white";
-        Global.CANVAS.style.cursor = "default";
-      }
-
-      // Draw the text
-      Global.CTX.fillStyle = "black";
-      Global.CTX.fillText(upgrade.name, x + 10, y + 30);
-      Global.CTX.fillText(upgrade.description, x + 10, y + 60);
-    });
-  }
-
-  handleUpgradeHover = (event: MouseEvent) => {
-    const rect = Global.CANVAS.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left - Global.offsetX;
-    const mouseY = event.clientY - rect.top - Global.offsetY;
-
-    let hoveredIndex: number | null = null;
-
-    this.upgradeChoicePositions.forEach((position, index) => {
-      if (
-        mouseX >= position.x &&
-        mouseX <= position.x + position.width &&
-        mouseY >= position.y &&
-        mouseY <= position.y + position.height
-      ) {
-        hoveredIndex = index;
-      }
-    });
-
-    if (this.hoveredChoiceIndex !== hoveredIndex) {
-      this.hoveredChoiceIndex = hoveredIndex;
-      this.drawUpgradeChoices();
-    }
-  };
-
-  handleUpgradeSelection = (event: MouseEvent) => {
-    if (!this.upgradeChoices) return;
-
-    const rect = Global.CANVAS.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left - Global.offsetX;
-    const mouseY = event.clientY - rect.top - Global.offsetY;
-
-    this.upgradeChoicePositions.forEach((position, index) => {
-      if (
-        mouseX >= position.x &&
-        mouseX <= position.x + position.width &&
-        mouseY >= position.y &&
-        mouseY <= position.y + position.height
-      ) {
-        if (this.upgradeChoices) {
-          const selectedUpgrade = this.upgradeChoices[index];
-          this.applyUpgrade(selectedUpgrade);
-          this.upgradeChoices = null;
-          Global.PAUSE = false;
-          Global.UPGRADE_CHOICES = false; // Reset upgrade choice state
-          requestAnimationFrame(this.gameLoop);
-          Global.CANVAS.removeEventListener(
-            "click",
-            this.handleUpgradeSelection
-          );
-          Global.CANVAS.removeEventListener(
-            "mousemove",
-            this.handleUpgradeHover
-          );
-        }
-      }
-    });
-  };
-
-  applyUpgrade(upgrade: Upgrade) {
-    switch (upgrade.type) {
-      case "speed":
-        this.speed += 0.02;
-        break;
-      case "maxHealth":
-        this.health = this.maxHealth;
-        break;
-      case "coinAttraction":
-        this.coinAttractionRange += 10;
-        break;
-      case "gun":
-        Player.ownGun = true;
-        break;
-      case "gun upgrade":
-        this.projectileCooldown -= 100;
-        Bullet.damage += 10;
-        break;
-      case "whip upgrade":
-        this.damage += 5;
-        this.damageCooldown -= 100;
-        break;
-      case "shield":
-        Player.ownBible = true;
-        break;
-      case "shield upgrade":
-        this.shield.rotationSpeed += 0.1;
-        this.shield.damage += 3;
-        break;
-    }
-  }
-
-  drawLevelProgressBar() {
-    const progressBarWidth = Global.CANVAS_WIDTH - 40;
-    const progressBarHeight = 30;
-    const progressBarX = 20 - Global.offsetX;
-    const progressBarY = 10 - Global.offsetY;
-    const requiredDiamondsForNextLevel = this.level * 5;
-    const progressPercentage =
-      (this.collectedDiamonds % requiredDiamondsForNextLevel) /
-      requiredDiamondsForNextLevel;
-
-    // Draw the progress bar background
-    Global.CTX.fillStyle = "gray";
-    Global.CTX.fillRect(
-      progressBarX,
-      progressBarY,
-      progressBarWidth,
-      progressBarHeight
-    );
-
-    // Draw the filled part of the progress bar
-    Global.CTX.fillStyle = "green";
-    Global.CTX.fillRect(
-      progressBarX,
-      progressBarY,
-      progressBarWidth * progressPercentage,
-      progressBarHeight
-    );
-
-    // Draw the level text
-    Global.CTX.fillStyle = "white";
-    Global.CTX.font = "20px Arial";
-    Global.CTX.fillText(
-      `Level: ${this.level}`,
-      progressBarX + progressBarWidth / 2 - 30,
-      progressBarY + progressBarHeight / 2 + 7
-    );
   }
 
   playerUpdate(deltaTime: number, timestamp: number, keys: any) {
@@ -489,38 +266,21 @@ export class Player extends GameObject {
     this.projectiles.forEach((bullet) => {
       bullet.draw(sprite);
     });
+
+    //Draw bible
     if (Player.ownBible) this.shield.draw(sprite);
+
+    // Game Over
     if (this.health <= 0) {
       soundManager.playSFX("gameOver");
       soundManager.music.pause();
-      console.log("Game Over");
-      Global.CTX.drawImage(
-        this.gameOverImage,
-        Global.CANVAS_WIDTH / 2 - this.gameOverImage.width / 2 - Global.offsetX,
-        Global.CANVAS_HEIGHT / 2 -
-          this.gameOverImage.height / 2 -
-          Global.offsetY
-      );
-      Global.CTX.fillStyle = "white";
-      Global.CTX.font = "20px Arial";
-      Global.CTX.fillText(
-        "Press Enter to restart",
-        Global.CANVAS_WIDTH / 2 - 100 - Global.offsetX,
-        Global.CANVAS_HEIGHT / 2 + 60 - Global.offsetY
-      );
+      this.gameOver.draw();
       Global.GAMEOVER = true;
       Global.PAUSE = true;
       return;
     }
-    this.sourceX = this.currentFrame * this.frameWidth;
-    Global.CTX.save(); // Save the current state of the canvas
 
-    // if (this.isDamaged) {
-    //   Global.CTX.filter = "hue-rotate(-50deg) saturate(200%)";
-    // } else {
-    //   Global.CTX.filter = "none";
-    // }
-    Global.CTX.restore(); // Restore the Global.CANVAS state
+    this.sourceX = this.currentFrame * this.frameWidth;
     Global.CTX.save(); // Save the current state of the canvas
 
     if (this.direction === "left") {
@@ -552,69 +312,21 @@ export class Player extends GameObject {
       );
     }
 
-    if (this.isAttacking && this.direction === "left") {
-      Global.CTX.restore(); // Restore the Global.CANVAS state
-      Global.CTX.drawImage(
-        sprite.spriteSheet,
-        0,
-        380,
-        this.frameWidth,
-        20, // Source rectangle
-        this.X - this.whipLength - 15,
-        this.Y - this.frameHeight / 2, // Destination rectangle
-        this.frameWidth * this.playerScale,
-        20 * this.playerScale
-      );
-    }
-
-    if (this.isAttacking && this.direction === "right") {
-      Global.CTX.scale(-1, 1);
-      Global.CTX.drawImage(
-        sprite.spriteSheet,
-        0,
-        380,
-        this.frameWidth,
-        20, // Source rectangle
-        -(this.X + this.frameWidth * 2.5),
-        this.Y - this.frameHeight / 2, // Destination rectangle (negated x to flip)
-        this.frameWidth * this.playerScale,
-        20 * this.playerScale
-      );
-    }
+    const whip = new Whip(this.X, this.Y);
+    whip.draw(
+      this.isAttacking,
+      this.direction,
+      sprite,
+      40,
+      20,
+      this.playerScale,
+      this.whipLength
+    );
 
     Global.CTX.restore(); // Restore the Global.CANVAS state
+
     // Draw the health bar
-    // this.drawDiamondsCounter();
-    this.drawLevelProgressBar();
-    this.drawHealthBar();
-  }
-
-  drawCollisionBorder() {
-    Global.CTX.strokeStyle = "red";
-    Global.CTX.lineWidth = 2;
-    Global.CTX.strokeRect(
-      this.X - this.frameWidth / 2,
-      this.Y - this.frameHeight / 2,
-      this.frameWidth,
-      this.frameHeight
-    );
-  }
-
-  drawHealthBar() {
-    const barWidth = 50;
-    const barHeight = 5;
-    const x = this.X - barWidth / 2;
-    const y = this.Y + this.frameHeight + 10;
-
-    Global.CTX.fillStyle = "black";
-    Global.CTX.fillRect(x, y, barWidth + 2, barHeight + 2);
-
-    Global.CTX.fillStyle = "red";
-    Global.CTX.fillRect(
-      x,
-      y,
-      (this.health / this.maxHealth) * barWidth,
-      barHeight
-    );
+    drawLevelProgressBar(this);
+    drawHealthBar(this);
   }
 }

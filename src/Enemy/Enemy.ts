@@ -1,11 +1,11 @@
-import { GameObject } from "./GameObject";
-import { Global } from "./Global";
-import { Sprite } from "./Sprite";
-import { Player } from "./Player";
-import { checkCollisionPlayer } from "./Utils";
-import { Particle } from "./Particles";
-import { Currency } from "./Currency";
-import { soundManager } from "./SoundManager";
+import { GameObject } from "../GameObject";
+import { Global } from "../Global";
+import { Sprite } from "../Sprites/Sprite";
+import { Player } from "../Player";
+import { checkCollisionPlayer } from "../Utils/Utils";
+import { Particle } from "../Elements/Particles";
+import { Currency } from "../Elements/Currency";
+import { soundManager } from "../Sound/SoundManager";
 
 export class Enemy extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -193,15 +193,5 @@ export class Enemy extends GameObject {
       Global.CTX.fillText(dt.damage.toString(), dt.x, dt.y);
       Global.CTX.globalAlpha = 1;
     });
-  }
-  drawCollisionBorder() {
-    Global.CTX.strokeStyle = "blue";
-    Global.CTX.lineWidth = 2;
-    Global.CTX.strokeRect(
-      this.X - this.frameWidth / 2,
-      this.Y - this.frameHeight / 2,
-      this.frameWidth,
-      this.frameHeight
-    );
   }
 }
