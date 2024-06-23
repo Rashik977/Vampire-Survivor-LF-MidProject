@@ -35,22 +35,24 @@ export class UpgradeMenu {
 
   drawUpgradeChoices() {
     if (!this.upgradeChoices) return;
-    // Global.CTX.clearRect(
-    //   -Global.offsetX,
-    //   -Global.offsetY,
-    //   Global.CANVAS_WIDTH,
-    //   Global.CANVAS_HEIGHT
-    // );
-    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.5)";
+
+    Global.CTX.clearRect(
+      -Global.offsetX,
+      -Global.offsetY,
+      Global.CANVAS_WIDTH,
+      Global.CANVAS_HEIGHT
+    );
+    Global.CTX.fillStyle = "#000000";
     Global.CTX.fillRect(
       -Global.offsetX,
       -Global.offsetY,
-      Global.CANVAS_WIDTH / 2,
+      Global.CANVAS_WIDTH,
       Global.CANVAS_HEIGHT
     );
 
     Global.CTX.fillStyle = "white";
     Global.CTX.font = "20px Arial";
+    Global.CTX.letterSpacing = "1px";
 
     this.upgradeChoicePositions = [];
     const choiceHeight = 100;
@@ -60,30 +62,30 @@ export class UpgradeMenu {
 
     this.upgradeChoices.forEach((upgrade, index) => {
       const y = spacing + index * (choiceHeight + spacing) - Global.offsetY;
-      const x = Global.CANVAS_WIDTH / 2 - 150 - Global.offsetX;
-      const width = 300;
+      const x = Global.CANVAS_WIDTH / 2 - 150 - Global.offsetX - 50;
+      const width = 400;
       const height = choiceHeight;
 
       // Store the position and size of the upgrade choice
       this.upgradeChoicePositions.push({ x, y, width, height });
 
       // Draw the border
-      Global.CTX.strokeStyle = "black";
+      Global.CTX.strokeStyle = "white";
       Global.CTX.lineWidth = 3;
       Global.CTX.strokeRect(x, y, width, height);
 
       // Change the color if hovered
       if (index === this.hoveredChoiceIndex) {
-        Global.CTX.fillStyle = "lightgrey";
+        Global.CTX.fillStyle = "#1b5e20";
         Global.CTX.fillRect(x, y, width, height);
         Global.CANVAS.style.cursor = "pointer";
       } else {
-        Global.CTX.fillStyle = "white";
+        Global.CTX.fillStyle = "black";
         Global.CANVAS.style.cursor = "default";
       }
 
       // Draw the text
-      Global.CTX.fillStyle = "black";
+      Global.CTX.fillStyle = "white";
       Global.CTX.fillText(upgrade.name, x + 10, y + 30);
       Global.CTX.fillText(upgrade.description, x + 10, y + 60);
     });

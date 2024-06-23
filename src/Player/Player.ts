@@ -47,6 +47,8 @@ export class Player extends GameObject {
   public static ownBible: boolean = false;
   public static ownWhip: boolean = false;
 
+  public score: number = parseInt(localStorage.getItem("score") ?? "0");
+
   public bulletDamage: number = 20;
 
   private projectiles: Bullet[] = [];
@@ -81,7 +83,7 @@ export class Player extends GameObject {
     this.isAttacking = false;
     this.enemies = enemies; // Reference to the enemies
 
-    this.collectedDiamonds = 4;
+    this.collectedDiamonds = 0;
     this.level = 1;
 
     this.coinAttractionRange = 60;

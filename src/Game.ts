@@ -3,7 +3,7 @@ import { Global } from "./Global";
 import { BackgroundTile } from "./Background/Background";
 import { Player } from "./Player/Player";
 import { Sprite } from "./Sprites/Sprite";
-import { KeyControls } from "./KeyControls";
+import { KeyControls } from "./Input/KeyControls";
 import { Enemy } from "./Enemy/Enemy";
 import { Currency } from "./Elements/Currency";
 import { soundManager } from "./Sound/SoundManager";
@@ -14,6 +14,8 @@ import { spawnEnemy, getRandomSpawnInterval } from "./Enemy/spawnEnemy";
 import { addVolumeListener, drawVolumeSliders } from "./Sound/volumeSlider";
 import { UpgradeMenu } from "./Upgrade/upgradeMenu";
 import { startGame } from "./UI/StartScreen";
+import { drawTimer } from "./Elements/Timer";
+import { deathCounter } from "./Elements/deathCount";
 
 Global.init();
 
@@ -31,6 +33,10 @@ export function Game(player: Player, enemies: Enemy[]) {
 
   let lastFrameTime: number = 0;
   let pauseTimestamp: number | null = null;
+
+  let startTime = Date.now();
+  let pauseStartTime: number | null = null;
+  let totalPausedTime: number = 0;
 
   // Enemy spawn variables
   let elapsedSpawnTime = 0;
@@ -65,6 +71,9 @@ export function Game(player: Player, enemies: Enemy[]) {
       if (!soundManager.music.paused) {
         soundManager.music.pause();
       }
+      if (!pauseStartTime) {
+        pauseStartTime = Date.now();
+      }
       if (!Global.UPGRADE_CHOICES && !Global.GAMEOVER) {
         Global.CTX.fillStyle = "white";
         Global.CTX.font = "60px Arial";
@@ -77,7 +86,12 @@ export function Game(player: Player, enemies: Enemy[]) {
       }
       pauseTimestamp = timestamp;
       lastFrameTime = timestamp;
+      startTime = startTime;
+
       return;
+    } else if (pauseStartTime) {
+      totalPausedTime += Date.now() - pauseStartTime;
+      pauseStartTime = null;
     }
 
     if (pauseTimestamp) {
@@ -92,6 +106,7 @@ export function Game(player: Player, enemies: Enemy[]) {
       }
     }
 
+    const elapsedSeconds = (Date.now() - startTime - totalPausedTime) / 1000;
     // Calculate the time elapsed since the last frame
     const deltaTime = timestamp - lastFrameTime;
     lastFrameTime = timestamp;
@@ -143,6 +158,8 @@ export function Game(player: Player, enemies: Enemy[]) {
     }
 
     player.playerDraw(sprite);
+    drawTimer(elapsedSeconds);
+    deathCounter(player.score);
 
     // Request the next frame
     requestAnimationFrame(gameLoop);

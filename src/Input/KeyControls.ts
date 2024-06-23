@@ -1,4 +1,4 @@
-import { Global } from "./Global";
+import { Global } from "../Global";
 
 export class KeyControls {
   public isMoving: boolean;
