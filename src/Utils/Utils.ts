@@ -1,6 +1,6 @@
 import { Enemy } from "../Enemy/Enemy";
 import { Obstacle } from "../Background/Obstacles";
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 
 export function checkCollisionPlayer(obj1: any, obj2: any): boolean {
   return (

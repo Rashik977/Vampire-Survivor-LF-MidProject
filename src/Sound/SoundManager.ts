@@ -56,6 +56,7 @@ class SoundManager {
 
     audioElements.forEach((audio) => {
       audio.addEventListener("loadeddata", () => {
+        console.log("Audio loaded:", audio.src);
         loadedCount++;
         if (loadedCount === audioElements.length) {
           this.audioLoaded = true;

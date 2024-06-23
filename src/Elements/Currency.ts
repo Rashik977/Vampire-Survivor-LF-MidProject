@@ -1,6 +1,6 @@
 import { GameObject } from "../GameObject";
 import { Global } from "../Global";
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 import { Sprite } from "../Sprites/Sprite";
 
 export class Currency extends GameObject {

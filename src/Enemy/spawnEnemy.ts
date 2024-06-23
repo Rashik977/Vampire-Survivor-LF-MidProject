@@ -1,4 +1,4 @@
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 import { Global } from "../Global";
 import { Enemy } from "./Enemy";
 

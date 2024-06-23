@@ -1,5 +1,5 @@
 import { Global } from "../Global";
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 
 export function drawHealthBar(player: Player) {
   const barWidth = 50;

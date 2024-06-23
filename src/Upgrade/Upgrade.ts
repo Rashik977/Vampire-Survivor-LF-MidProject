@@ -1,4 +1,4 @@
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 
 export type UpgradeType =
   | "speed"
@@ -7,6 +7,7 @@ export type UpgradeType =
   | "coinAttraction"
   | "gun"
   | "gun upgrade"
+  | "whip"
   | "whip upgrade"
   | "shield"
   | "shield upgrade";
@@ -33,7 +34,7 @@ export class Upgrade {
         "Attract coins from farther away"
       ),
       new Upgrade("gun", "Axe", "shoots the enemies with your axe"),
-      new Upgrade("whip upgrade", "Whip Upgrade", "Upgrade your whip"),
+      new Upgrade("whip", "Whip", "Strike your enemies with your whip"),
       new Upgrade("shield", "Bible", "Shield from enemies with your bible"),
     ];
 
@@ -50,6 +51,14 @@ export class Upgrade {
       upgrades.splice(upgrades.indexOf(shield[0]), 1);
       upgrades.push(
         new Upgrade("shield upgrade", "Bible Upgrade", "Upgrade your shield")
+      );
+    }
+
+    if (Player.ownWhip) {
+      const whip = upgrades.filter((upgrade) => upgrade.type === "whip");
+      upgrades.splice(upgrades.indexOf(whip[0]), 1);
+      upgrades.push(
+        new Upgrade("whip upgrade", "Whip Upgrade", "Upgrade your whip")
       );
     }
 

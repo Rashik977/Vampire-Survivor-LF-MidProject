@@ -1,15 +1,15 @@
-import { GameObject } from "./GameObject";
-import { Global } from "./Global";
-import { Sprite } from "./Sprites/Sprite";
-import { Enemy } from "./Enemy/Enemy";
-import { normalize } from "./Utils/Utils";
-import { soundManager } from "./Sound/SoundManager";
-import { Bullet } from "./Weapons/Bullets";
-import { Shield } from "./Weapons/Shield";
-import { drawHealthBar } from "./Elements/healthBar";
-import { GameOver } from "./Sprites/GameOver";
-import { Whip } from "./Weapons/Whip";
-import { drawLevelProgressBar } from "./Elements/levelProgressBar";
+import { GameObject } from "../GameObject";
+import { Global } from "../Global";
+import { Sprite } from "../Sprites/Sprite";
+import { Enemy } from "../Enemy/Enemy";
+import { normalize } from "../Utils/Utils";
+import { soundManager } from "../Sound/SoundManager";
+import { Bullet } from "../Weapons/Bullets";
+import { Shield } from "../Weapons/Shield";
+import { drawHealthBar } from "../Elements/healthBar";
+import { GameOver } from "../Sprites/GameOver";
+import { Whip } from "../Weapons/Whip";
+import { drawLevelProgressBar } from "../Elements/levelProgressBar";
 
 export class Player extends GameObject {
   public frameWidth: number; // Width of a single frame
@@ -45,19 +45,21 @@ export class Player extends GameObject {
 
   public static ownGun: boolean = false;
   public static ownBible: boolean = false;
-  public static ownWhip: boolean = true;
+  public static ownWhip: boolean = false;
+
+  public bulletDamage: number = 20;
 
   private projectiles: Bullet[] = [];
   public projectileCooldown: number = 1000; // 0.5 second cooldown
   private lastProjectileTime: number | null = null;
 
-  public shield: Shield = new Shield(this, 2, 5, 80);
-  public whip: Whip = new Whip(this, 10, 1000, 80, 1000);
+  public shield: Shield;
+  public whip: Whip;
 
   private gameOver: GameOver;
 
-  constructor(x: number, y: number, playerIndex: number, enemies: Enemy[]) {
-    super(x, y);
+  constructor(playerIndex: number, enemies: Enemy[], health: number) {
+    super(Global.CANVAS_WIDTH / 2, Global.CANVAS_HEIGHT / 2);
     this.frameWidth = 37;
     this.frameHeight = 37;
     this.totalFrames = 3;
@@ -69,9 +71,9 @@ export class Player extends GameObject {
 
     this.sourceX = 0;
     this.sourceY = playerIndex; // Assuming all frames are in a single row
-    this.playerScale = 1.7; // Scale the player sprite
+    this.playerScale = 2; // Scale the player sprite
 
-    this.maxHealth = 100;
+    this.maxHealth = health;
     this.health = this.maxHealth;
     this.lastDamageTime = 0;
 
@@ -79,12 +81,14 @@ export class Player extends GameObject {
     this.isAttacking = false;
     this.enemies = enemies; // Reference to the enemies
 
-    this.collectedDiamonds = 0;
+    this.collectedDiamonds = 4;
     this.level = 1;
 
     this.coinAttractionRange = 60;
 
     this.gameOver = new GameOver("gameOver.png");
+    this.whip = new Whip(this, 10, 1000, 80, 1000);
+    this.shield = new Shield(this, 2, 5, 80);
   }
 
   takeDamage(amount: number, timestamp: number) {
@@ -210,7 +214,16 @@ export class Player extends GameObject {
     direction = normalize(direction); // Normalize the direction vector
     const speed = 0.6;
     this.projectiles.push(
-      new Bullet(this.X, this.Y, speed, direction, 40, 30, this.projectiles)
+      new Bullet(
+        this.X,
+        this.Y,
+        speed,
+        direction,
+        40,
+        30,
+        this.projectiles,
+        this.bulletDamage
+      )
     );
   }
 
@@ -295,14 +308,16 @@ export class Player extends GameObject {
       );
     }
 
-    this.whip.draw(
-      this.isAttacking,
-      this.direction,
-      sprite,
-      40,
-      20,
-      this.playerScale
-    );
+    if (Player.ownWhip) {
+      this.whip.draw(
+        this.isAttacking,
+        this.direction,
+        sprite,
+        40,
+        20,
+        this.playerScale
+      );
+    }
 
     Global.CTX.restore(); // Restore the Global.CANVAS state
 

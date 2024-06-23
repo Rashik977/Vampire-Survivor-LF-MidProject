@@ -10,7 +10,7 @@ export class Bullet extends GameObject {
   private direction: { x: number; y: number };
   public width: number;
   public height: number;
-  public static damage: number = 20;
+  public damage: number = 20;
   private projectiles: Bullet[];
 
   private rotationAngle: number;
@@ -22,7 +22,8 @@ export class Bullet extends GameObject {
     direction: { x: number; y: number },
     width: number,
     height: number,
-    projectiles: Bullet[]
+    projectiles: Bullet[],
+    damage: number
   ) {
     super(x, y);
     this.speed = speed;
@@ -31,6 +32,7 @@ export class Bullet extends GameObject {
     this.height = height;
     this.projectiles = projectiles;
     this.rotationAngle = 0; // Initialize rotation angle
+    this.damage = damage;
   }
 
   update(deltaTime: number, enemies: Enemy[]) {
@@ -43,7 +45,7 @@ export class Bullet extends GameObject {
     enemies.forEach((enemy) => {
       if (checkCollisionEnemy(this, enemy)) {
         this.projectiles.splice(this.projectiles.indexOf(this), 1);
-        enemy.takeDamage(Bullet.damage);
+        enemy.takeDamage(this.damage);
       }
     });
   }

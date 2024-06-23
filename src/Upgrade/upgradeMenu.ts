@@ -1,7 +1,6 @@
 import { Global } from "../Global";
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 import { Upgrade } from "./Upgrade";
-import { Bullet } from "../Weapons/Bullets";
 
 export class UpgradeMenu {
   upgradeChoices: Upgrade[] | null = null;
@@ -36,17 +35,17 @@ export class UpgradeMenu {
 
   drawUpgradeChoices() {
     if (!this.upgradeChoices) return;
-    Global.CTX.clearRect(
-      -Global.offsetX,
-      -Global.offsetY,
-      Global.CANVAS_WIDTH,
-      Global.CANVAS_HEIGHT
-    );
-    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.7)";
+    // Global.CTX.clearRect(
+    //   -Global.offsetX,
+    //   -Global.offsetY,
+    //   Global.CANVAS_WIDTH,
+    //   Global.CANVAS_HEIGHT
+    // );
+    Global.CTX.fillStyle = "rgba(0, 0, 0, 0.5)";
     Global.CTX.fillRect(
       -Global.offsetX,
       -Global.offsetY,
-      Global.CANVAS_WIDTH,
+      Global.CANVAS_WIDTH / 2,
       Global.CANVAS_HEIGHT
     );
 
@@ -162,7 +161,7 @@ export class UpgradeMenu {
         break;
       case "gun upgrade":
         this.player.projectileCooldown -= 100;
-        Bullet.damage += 10;
+        this.player.bulletDamage += 10;
         break;
       case "whip upgrade":
         this.player.whip.damage += 5;
@@ -176,6 +175,8 @@ export class UpgradeMenu {
         this.player.shield.rotationSpeed += 0.1;
         this.player.shield.damage += 3;
         break;
+      case "whip":
+        Player.ownWhip = true;
     }
   }
 }

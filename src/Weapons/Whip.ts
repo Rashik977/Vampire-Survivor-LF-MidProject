@@ -69,7 +69,7 @@ export class Whip extends GameObject {
         this.sourceY,
         frameWidth,
         20, // Source rectangle
-        this.X - this.whipLength - 20,
+        this.X - this.whipLength - 30,
         this.Y - frameHeight / 2, // Destination rectangle
         frameWidth * playerScale,
         20 * playerScale
@@ -84,7 +84,7 @@ export class Whip extends GameObject {
         this.sourceY,
         frameWidth,
         20, // Source rectangle
-        -(this.X + frameWidth * 2.5),
+        -(this.X + frameWidth * 3),
         this.Y - frameHeight / 2, // Destination rectangle (negated x to flip)
         frameWidth * playerScale,
         20 * playerScale

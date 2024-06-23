@@ -1,7 +1,7 @@
 import { GameObject } from "../GameObject";
 import { Global } from "../Global";
 import { Sprite } from "../Sprites/Sprite";
-import { Player } from "../Player";
+import { Player } from "../Player/Player";
 import { checkCollisionPlayer } from "../Utils/Utils";
 import { Particle } from "../Elements/Particles";
 import { Currency } from "../Elements/Currency";
