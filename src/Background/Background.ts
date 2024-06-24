@@ -8,8 +8,9 @@ export class BackgroundTile {
   private tileWidth: number;
   private tileHeight: number;
   private tileImage: HTMLImageElement;
+  private sourceX: number;
 
-  constructor(tileImage: HTMLImageElement) {
+  constructor(tileImage: HTMLImageElement, sourceX: number) {
     this.tileWidth = 85;
     this.tileHeight = 80;
     this.numTilesX = Math.ceil(
@@ -28,20 +29,21 @@ export class BackgroundTile {
     ) as CanvasRenderingContext2D;
 
     this.tileImage = tileImage;
+    this.sourceX = sourceX;
 
     // Draw the entire tile map on the off-screen canvas
     this.tileImage.onload = () => {
       Global.SpriteLoaded = true;
-      this.drawTileMap();
+      this.drawTileMap(this.sourceX);
     };
   }
 
-  private drawTileMap() {
+  private drawTileMap(sourceX: number) {
     for (let x = 0; x < this.numTilesX; x++) {
       for (let y = 0; y < this.numTilesY; y++) {
         this.offScreenCtx.drawImage(
           this.tileImage,
-          0,
+          sourceX,
           560, // Source coordinates
           this.tileImage.width,
           this.tileImage.height, // Source dimensions

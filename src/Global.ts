@@ -19,6 +19,7 @@ export class Global {
   public static SpriteLoaded: boolean = false;
 
   public static PLAYER_INDEX: number = 0;
+  public static BACKGROUND_INDEX: number = 0;
   public static SCORE: number;
 
   public static init(): void {

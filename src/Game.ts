@@ -9,7 +9,6 @@ import { Currency } from "./Elements/Currency";
 import { soundManager } from "./Sound/SoundManager";
 import { Obstacle } from "./Background/Obstacles";
 import { drawLoadingAnimation } from "./Utils/Loading";
-import { placeObstaclesRandomly } from "./Background/PlaceObstacles";
 import { spawnEnemy, getRandomSpawnInterval } from "./Enemy/spawnEnemy";
 import { addVolumeListener, drawVolumeSliders } from "./Sound/volumeSlider";
 import { UpgradeMenu } from "./Upgrade/upgradeMenu";
@@ -19,11 +18,14 @@ import { deathCounter } from "./Elements/deathCount";
 
 Global.init();
 
-export function Game(player: Player, enemies: Enemy[]) {
+export function Game(
+  player: Player,
+  enemies: Enemy[],
+  sprite: Sprite,
+  backgroundTile: BackgroundTile,
+  obstacles: Obstacle[]
+) {
   const currencies: Currency[] = [];
-
-  const sprite = new Sprite("characters1.png");
-  const backgroundTile = new BackgroundTile(sprite.spriteSheet);
 
   const upgradeMenu = new UpgradeMenu(gameLoop, player);
 
@@ -41,9 +43,6 @@ export function Game(player: Player, enemies: Enemy[]) {
   // Enemy spawn variables
   let elapsedSpawnTime = 0;
   let spawnInterval = 5000;
-
-  // Load obstacles
-  const obstacles: Obstacle[] = placeObstaclesRandomly(sprite, 200, 40, 50);
 
   soundManager.playMusic();
 

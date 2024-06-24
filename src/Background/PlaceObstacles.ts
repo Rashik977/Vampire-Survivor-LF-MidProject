@@ -18,7 +18,9 @@ export function placeObstaclesRandomly(
   sprite: Sprite,
   numObstacles: number,
   obstacleWidth: number,
-  obstacleHeight: number
+  obstacleHeight: number,
+  numOfSprite: number,
+  SourceY: number
 ) {
   const obstacles: Obstacle[] = [];
 
@@ -43,8 +45,8 @@ export function placeObstaclesRandomly(
         obstacleWidth,
         obstacleHeight,
         sprite,
-        Math.floor(Math.random() * 14) * 40,
-        500
+        Math.floor(Math.random() * numOfSprite) * 40,
+        SourceY
       )
     ); // Assuming obstacles are from the same sprite position
   }
