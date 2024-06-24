@@ -130,8 +130,8 @@ export class Enemy extends GameObject {
   }
 
   die(currencies: Currency[]) {
-    this.player.score += 1; // Increase the player's score
-    localStorage.setItem("score", this.player.score.toString()); // Save the score to local storage
+    Global.SCORE += 1; // Increase the player's score
+    localStorage.setItem("score", Global.SCORE.toString()); // Save the score to local storage
     // Drop a diamond
     const diamond = new Currency(this.X, this.Y, this.player, currencies);
     currencies.push(diamond);

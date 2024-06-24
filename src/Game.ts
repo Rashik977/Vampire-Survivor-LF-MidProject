@@ -58,6 +58,58 @@ export function Game(player: Player, enemies: Enemy[]) {
     }
   }
 
+  // Button properties
+  const buttonX = Global.CANVAS_WIDTH / 2 - 70;
+  const buttonY = Global.CANVAS_HEIGHT / 2 + 100; // Position below volume sliders
+  const buttonWidth = 150;
+  const buttonHeight = 50;
+  const buttonColor = "#FF0000"; // Red color
+  const textColor = "#FFFFFF"; // White color for text
+  const fontSize = 20;
+  const fontFamily = "Arial";
+  const text = "Quit Game";
+
+  // Draw button
+  function drawButton() {
+    Global.CTX.fillStyle = buttonColor;
+    Global.CTX.fillRect(
+      buttonX - Global.offsetX,
+      buttonY - Global.offsetY,
+      buttonWidth,
+      buttonHeight
+    );
+    Global.CTX.font = `${fontSize}px ${fontFamily}`;
+    Global.CTX.fillStyle = textColor;
+    Global.CTX.textAlign = "center";
+    Global.CTX.textBaseline = "middle";
+    Global.CTX.fillText(
+      text,
+      buttonX + buttonWidth / 2 - Global.offsetX,
+      buttonY + buttonHeight / 2 - Global.offsetY
+    );
+  }
+
+  // Check if the click is inside the button
+  function isInsideButton(x: number, y: number) {
+    return (
+      x >= buttonX &&
+      x <= buttonX + buttonWidth &&
+      y >= buttonY &&
+      y <= buttonY + buttonHeight
+    );
+  }
+
+  // Add event listener for click
+  Global.CANVAS.addEventListener("click", function (event) {
+    const rect = Global.CANVAS.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    if (isInsideButton(x, y)) {
+      window.location.reload();
+    }
+  });
+
   soundManager.checkIfAudioLoaded();
 
   function gameLoop(timestamp: number) {
@@ -83,6 +135,9 @@ export function Game(player: Player, enemies: Enemy[]) {
           Global.CANVAS_HEIGHT / 3 - Global.offsetY
         );
         drawVolumeSliders();
+        Global.CTX.save();
+        drawButton();
+        Global.CTX.restore();
       }
       pauseTimestamp = timestamp;
       lastFrameTime = timestamp;
@@ -159,7 +214,7 @@ export function Game(player: Player, enemies: Enemy[]) {
 
     player.playerDraw(sprite);
     drawTimer(elapsedSeconds);
-    deathCounter(player.score);
+    deathCounter(Global.SCORE);
 
     // Request the next frame
     requestAnimationFrame(gameLoop);

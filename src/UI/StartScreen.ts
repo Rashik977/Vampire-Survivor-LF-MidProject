@@ -24,11 +24,20 @@ function playerSelection() {
     ".player-selection__items"
   ) as HTMLElement;
   const playerStats = document.querySelector(".player-stats") as HTMLElement;
+  const playerAlert = document.querySelector(".player-alert") as HTMLElement;
   const nextButton = document.querySelector(".btn--next") as HTMLButtonElement;
+  const buyButton = document.querySelector(".btn--buy") as HTMLButtonElement;
+  const scoreDisplay = document.querySelector(".score") as HTMLElement;
   playerSelectionScreen.classList.remove("hidden");
   playerSelectionScreen.classList.add("screen");
 
-  players.forEach((player) => {
+  function displayScore() {
+    scoreDisplay.innerText = `Score: ${Global.SCORE}`;
+  }
+
+  displayScore();
+
+  players.forEach((player: any) => {
     const img = document.createElement("img");
     img.src = player.imgSrc;
     img.alt = player.name;
@@ -40,9 +49,17 @@ function playerSelection() {
     });
     img.addEventListener("click", () => {
       selectedCharacter = player;
+
       playerStats.innerText = player.stats;
       playerStats.classList.remove("hidden");
-      nextButton.classList.remove("hidden");
+      if (selectedCharacter.purchased) {
+        nextButton.classList.remove("hidden");
+        buyButton.classList.add("hidden");
+      } else {
+        nextButton.classList.add("hidden");
+        buyButton.classList.remove("hidden");
+        buyButton.innerText = `Buy for ${player.cost} coins`;
+      }
       const selectedPlayer = document.querySelectorAll(
         ".player-selection__items img"
       ) as NodeListOf<HTMLImageElement>;
@@ -56,10 +73,29 @@ function playerSelection() {
 
   nextButton.addEventListener("click", () => {
     Global.PLAYER_INDEX = players.indexOf(selectedCharacter);
+
     const screen = document.querySelector(
       ".start-screen-wrapper"
     ) as HTMLElement;
     screen.classList.add("hidden");
     GameInitialize.init();
+  });
+  buyButton.addEventListener("click", () => {
+    if (Global.SCORE >= selectedCharacter.cost) {
+      Global.SCORE -= selectedCharacter.cost;
+      localStorage.setItem("score", Global.SCORE.toString());
+      selectedCharacter.purchased = true;
+      players[players.indexOf(selectedCharacter)].purchased = true;
+      localStorage.setItem("players", JSON.stringify(players));
+      buyButton.classList.add("hidden");
+      nextButton.classList.remove("hidden");
+
+      displayScore();
+    } else {
+      playerAlert.classList.remove("hidden");
+      setTimeout(() => {
+        playerAlert.classList.add("hidden");
+      }, 2000);
+    }
   });
 }

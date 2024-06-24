@@ -47,8 +47,6 @@ export class Player extends GameObject {
   public static ownBible: boolean = false;
   public static ownWhip: boolean = false;
 
-  public score: number = parseInt(localStorage.getItem("score") ?? "0");
-
   public bulletDamage: number = 20;
 
   private projectiles: Bullet[] = [];

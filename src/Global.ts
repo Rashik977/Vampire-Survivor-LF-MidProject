@@ -19,6 +19,7 @@ export class Global {
   public static SpriteLoaded: boolean = false;
 
   public static PLAYER_INDEX: number = 0;
+  public static SCORE: number;
 
   public static init(): void {
     Global.CANVAS.width = Global.CANVAS_WIDTH;
@@ -26,5 +27,6 @@ export class Global {
     Global.UIWRAPPER.style.width = `${Global.CANVAS_WIDTH}px`;
     Global.UIWRAPPER.style.height = `${Global.CANVAS_HEIGHT}px`;
     Global.CANVAS.style.border = `1px solid ${Global.CANVAS_BORDER_COLOR}`;
+    Global.SCORE = parseInt(localStorage.getItem("score") ?? "0");
   }
 }
