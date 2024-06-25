@@ -22,7 +22,6 @@ export class Whip extends GameObject {
     attackCooldown: number
   ) {
     super(player.X, player.Y);
-    this.whipLength = 50;
     this.sourceX = 0;
     this.sourceY = 380;
     this.damage = damage;

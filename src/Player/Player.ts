@@ -86,7 +86,7 @@ export class Player extends GameObject {
 
     this.coinAttractionRange = 60;
 
-    this.gameOver = new GameOver("gameOver.png");
+    this.gameOver = new GameOver("UI/gameOver.png");
     this.whip = new Whip(this, 10, 1000, 80, 1000);
     this.shield = new Shield(this, 2, 5, 80);
   }
@@ -228,6 +228,7 @@ export class Player extends GameObject {
   }
 
   whipAttack() {
+    console.log(this.whip.whipLength);
     soundManager.playSFX("whip");
     const whipEndX =
       this.direction === "right"
