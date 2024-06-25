@@ -1,5 +1,6 @@
 import { Global } from "../Global";
 
+// Function to draw the loading animation on the canvas
 export function drawLoadingAnimation(timestamp: number) {
   const centerX = Global.CANVAS.width / 2;
   const centerY = Global.CANVAS.height / 2;

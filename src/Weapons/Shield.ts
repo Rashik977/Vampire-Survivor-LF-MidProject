@@ -5,6 +5,7 @@ import { Enemy } from "../Enemy/Enemy";
 import { checkCollisionEnemy } from "../Utils/Utils";
 import { Sprite } from "../Sprites/Sprite";
 
+// class to create shield objects
 export class Shield extends GameObject {
   public rotationSpeed: number;
   public damage: number;
@@ -22,7 +23,7 @@ export class Shield extends GameObject {
     rotationSpeed: number,
     damage: number,
     radius: number,
-    collisionCooldown: number = 0.5 // Cooldown in seconds
+    collisionCooldown: number = 0.5
   ) {
     super(player.X, player.Y);
     this.rotationSpeed = rotationSpeed;
@@ -47,7 +48,7 @@ export class Shield extends GameObject {
     this.Y = this.player.Y + this.radius * Math.sin(radians);
 
     // Get the current time
-    const currentTime = Date.now() / 1000; // Current time in seconds
+    const currentTime = Date.now() / 1000;
 
     // Check collision with enemies
     enemies.forEach((enemy) => {

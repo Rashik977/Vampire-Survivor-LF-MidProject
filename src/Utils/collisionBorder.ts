@@ -1,6 +1,6 @@
 import { Global } from "../Global";
 
-// for debugging
+// collision border for debugging
 export function drawCollisionBorder(obj: any) {
   Global.CTX.strokeStyle = "red";
   Global.CTX.lineWidth = 2;

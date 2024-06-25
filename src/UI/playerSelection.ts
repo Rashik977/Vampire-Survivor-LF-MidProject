@@ -3,9 +3,11 @@ import { players } from "../Player/PlayerInfo";
 import { displayScore } from "./drawScore";
 import { backgroundSelection } from "./backgroundSelection";
 
+// function to display the player selection screen
 export function playerSelection() {
   let selectedCharacter: any = null;
 
+  // DOM elements
   const playerSelectionScreen = document.querySelector(
     ".player-selection"
   ) as HTMLElement;
@@ -16,9 +18,12 @@ export function playerSelection() {
   const playerAlert = document.querySelector(".player-alert") as HTMLElement;
   const nextButton = document.querySelector(".btn--next") as HTMLButtonElement;
   const buyButton = document.querySelector(".btn--buy") as HTMLButtonElement;
+
+  // Display the player selection screen
   playerSelectionScreen.classList.remove("hidden");
   playerSelectionScreen.classList.add("screen");
 
+  // Display the player images
   players.forEach((player: any) => {
     const img = document.createElement("img");
     img.src = player.imgSrc;
@@ -53,14 +58,19 @@ export function playerSelection() {
     playerSelectionItems.appendChild(img);
   });
 
+  // Event listeners for the next button
   nextButton.addEventListener("click", () => {
     Global.PLAYER_INDEX = players.indexOf(selectedCharacter);
 
     playerSelectionScreen.classList.add("hidden");
     playerSelectionScreen.classList.remove("screen");
     playerSelectionScreen.style.display = "none";
+
+    // Display the background selection screen
     backgroundSelection();
   });
+
+  // Event listeners for the buy button
   buyButton.addEventListener("click", () => {
     if (Global.SCORE >= selectedCharacter.cost) {
       Global.SCORE -= selectedCharacter.cost;

@@ -11,95 +11,117 @@ import { GameOver } from "../Sprites/GameOver";
 import { Whip } from "../Weapons/Whip";
 import { drawLevelProgressBar } from "../Elements/levelProgressBar";
 
+// Class to create player object
 export class Player extends GameObject {
-  public frameWidth: number; // Width of a single frame
-  public frameHeight: number; // Height of a single frame
-  private totalFrames: number; // Total number of frames in the animation
-  private currentFrame: number; // Index of the current frame
-  private frameSpeed: number; // Speed of frame change in milliseconds
-  public direction: string; // Possible values: 'right', 'left'
-  public speed: number;
-  private lastAnimationFrameTime: number | null;
-
+  //sprite properties
+  public frameWidth: number;
+  public frameHeight: number;
   private sourceX: number;
   private sourceY: number;
   private playerScale: number;
 
+  //animation properties
+  private totalFrames: number;
+  private currentFrame: number;
+  private frameSpeed: number;
+  private lastAnimationFrameTime: number | null;
+  public direction: string;
+
+  //Gameplay properties
+  public speed: number;
   public health: number;
   public maxHealth: number;
 
+  //attack properties
   private lastDamageTime: number;
+  private lastAttackTime: number | null;
+  private isAttacking: boolean;
 
-  private lastAttackTime: number | null; // For cooldown management
-  private isAttacking: boolean; // To handle attack state
-  private enemies: Enemy[]; // Reference to the enemies
-
+  //coin properties and level
   public collectedDiamonds: number;
   public level: number;
-
   public coinAttractionRange: number;
 
-  // public isCollidingWithWall: boolean = false;
+  //wall collision properties
   public isCollidingWithWallX: boolean = false;
   public isCollidingWithWallY: boolean = false;
 
+  //static variables to check if player owns a weapon
   public static ownGun: boolean = false;
   public static ownBible: boolean = false;
   public static ownWhip: boolean = false;
 
-  public bulletDamage: number = 20;
-
+  //arrays
+  private enemies: Enemy[];
   private projectiles: Bullet[] = [];
-  public projectileCooldown: number = 1000; // 0.5 second cooldown
+
+  //bullet/axe properties
+  public bulletDamage: number = 20;
+  public projectileCooldown: number = 1000;
   private lastProjectileTime: number | null = null;
 
+  //weapons objects
   public shield: Shield;
   public whip: Whip;
 
+  //game over object
   private gameOver: GameOver;
 
   constructor(playerIndex: number, enemies: Enemy[], health: number) {
     super(Global.CANVAS_WIDTH / 2, Global.CANVAS_HEIGHT / 2);
+    //set sprite properties
     this.frameWidth = 37;
     this.frameHeight = 37;
     this.totalFrames = 3;
+    this.sourceX = 0;
+    this.sourceY = playerIndex;
+    this.playerScale = 2;
+
+    //set animation properties
     this.currentFrame = 0;
     this.frameSpeed = 150;
     this.direction = "right";
     this.lastAnimationFrameTime = null;
+
+    //set gameplay properties
     this.speed = 0.1;
-
-    this.sourceX = 0;
-    this.sourceY = playerIndex; // Assuming all frames are in a single row
-    this.playerScale = 2; // Scale the player sprite
-
     this.maxHealth = health;
     this.health = this.maxHealth;
     this.lastDamageTime = 0;
 
+    //set attack properties
     this.lastAttackTime = null;
     this.isAttacking = false;
-    this.enemies = enemies; // Reference to the enemies
 
+    //set coin properties and level
     this.collectedDiamonds = 0;
+    this.coinAttractionRange = 60;
     this.level = 1;
 
-    this.coinAttractionRange = 60;
+    //set arrays
+    this.enemies = enemies;
 
-    this.gameOver = new GameOver("UI/gameOver.png");
+    //set weapons objects
     this.whip = new Whip(this, 10, 1000, 80, 1000);
     this.shield = new Shield(this, 2, 5, 80);
+
+    //set game over object
+    this.gameOver = new GameOver("UI/gameOver.png");
   }
 
+  //function to update player health if player takes damage
   takeDamage(amount: number, timestamp: number) {
     soundManager.playSFX("take_damage");
     if (timestamp - this.lastDamageTime > this.whip.damageCooldown) {
       this.health -= amount;
       this.lastDamageTime = timestamp;
-      this.health = Math.max(this.health, 0); // Ensure health doesn't go below 0
+
+      // Ensure health doesn't go below 0
+      this.health = Math.max(this.health, 0);
     }
   }
 
+  // function to increse collected diamonds
   collectDiamond() {
     this.collectedDiamonds += 1;
     soundManager.playSFX("collect");
@@ -147,6 +169,7 @@ export class Player extends GameObject {
 
     this.isCollidingWithWallX = false;
     this.isCollidingWithWallY = false;
+
     // Check for collision with canvas boundaries
     if (this.X + Global.CANVAS_WIDTH / 0.7 - this.frameWidth < 0) {
       this.X = this.frameWidth - Global.CANVAS_WIDTH / 0.7;
@@ -205,13 +228,14 @@ export class Player extends GameObject {
     });
   }
 
+  //function to fire bullets
   fireBullet() {
     soundManager.playSFX("gun");
     let direction = {
       x: Math.random() * 2 - 1,
       y: Math.random() * 2 - 1,
     };
-    direction = normalize(direction); // Normalize the direction vector
+    direction = normalize(direction);
     const speed = 0.6;
     this.projectiles.push(
       new Bullet(
@@ -227,6 +251,7 @@ export class Player extends GameObject {
     );
   }
 
+  //function to attack with whip
   whipAttack() {
     console.log(this.whip.whipLength);
     soundManager.playSFX("whip");
@@ -254,7 +279,7 @@ export class Player extends GameObject {
         this.lastAnimationFrameTime = timestamp;
       }
     } else {
-      this.currentFrame = 0; // Reset to the first frame when not moving
+      this.currentFrame = 0;
     }
   }
 
@@ -282,7 +307,7 @@ export class Player extends GameObject {
     }
 
     this.sourceX = this.currentFrame * this.frameWidth;
-    Global.CTX.save(); // Save the current state of the canvas
+    Global.CTX.save();
 
     if (this.direction === "left") {
       // Flip the sprite horizontally
@@ -292,9 +317,9 @@ export class Player extends GameObject {
         this.sourceX,
         this.sourceY,
         this.frameWidth,
-        this.frameHeight, // Source rectangle
+        this.frameHeight,
         -(this.X + this.frameWidth / 2),
-        this.Y - this.frameHeight / 2, // Destination rectangle (negated x to flip)
+        this.Y - this.frameHeight / 2,
         this.frameWidth * this.playerScale,
         this.frameHeight * this.playerScale
       );
@@ -305,14 +330,15 @@ export class Player extends GameObject {
         this.sourceX,
         this.sourceY,
         this.frameWidth,
-        this.frameHeight, // Source rectangle
+        this.frameHeight,
         this.X - this.frameWidth / 2,
-        this.Y - this.frameHeight / 2, // Destination rectangle
+        this.Y - this.frameHeight / 2,
         this.frameWidth * this.playerScale,
         this.frameHeight * this.playerScale
       );
     }
 
+    // Draw the whip
     if (Player.ownWhip) {
       this.whip.draw(
         this.isAttacking,
@@ -324,7 +350,7 @@ export class Player extends GameObject {
       );
     }
 
-    Global.CTX.restore(); // Restore the Global.CANVAS state
+    Global.CTX.restore();
 
     // Draw the health bar
     drawLevelProgressBar(this);

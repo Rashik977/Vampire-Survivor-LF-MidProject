@@ -1,6 +1,7 @@
 import { Global } from "../Global";
 import { Player } from "../Player/Player";
 
+// function to draw the health bar on the canvas and follow the player
 export function drawHealthBar(player: Player) {
   const barWidth = 50;
   const barHeight = 5;

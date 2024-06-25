@@ -1,3 +1,4 @@
+// initail background data
 const backgroundInit = [
   {
     name: "forest",

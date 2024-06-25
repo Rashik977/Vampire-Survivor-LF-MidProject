@@ -7,33 +7,44 @@ import { Particle } from "../Elements/Particles";
 import { Currency } from "../Elements/Currency";
 import { soundManager } from "../Sound/SoundManager";
 
+// Class to create enemy objects
 export class Enemy extends GameObject {
-  public frameWidth: number; // Width of a single frame
-  public frameHeight: number; // Height of a single frame
-  private totalFrames: number; // Total number of frames in the animation
-  private currentFrame: number; // Index of the current frame
-  private frameSpeed: number; // Speed of frame change in milliseconds
-  private direction: string; // Possible values: 'right', 'left'
-  private speed: number;
-  private lastAnimationFrameTime: number | null;
-  private player: Player;
-
+  //sprite properties
+  public frameWidth: number;
+  public frameHeight: number;
   private sourceX: number;
   private sourceY: number;
   private enemyScale: number;
 
+  //animation properties
+  private totalFrames: number;
+  private currentFrame: number;
+  private frameSpeed: number;
+  private direction: string;
+  private lastAnimationFrameTime: number | null;
+
+  //movement properties
+  private speed: number;
+
+  //reference to player object
+  private player: Player;
+
+  //gameplay properties
   private damage: number;
+  public health: number;
 
+  //arrays
   private particles: Particle[] = [];
-  private enemies: Enemy[]; // Reference to the enemies
+  private enemies: Enemy[];
 
-  public health: number; // Add health property
+  //damage text properties
   private damageTexts: {
     x: number;
     y: number;
     damage: number;
     alpha: number;
   }[];
+
   constructor(
     x: number,
     y: number,
@@ -46,39 +57,52 @@ export class Enemy extends GameObject {
     enemies: Enemy[]
   ) {
     super(x, y);
+
+    //set sprite properties
     this.frameWidth = frameWidth;
     this.frameHeight = frameHeight;
+    this.sourceX = 0;
+    this.sourceY = sourceY;
+
+    //set animation properties
     this.totalFrames = 3;
     this.currentFrame = 0;
     this.frameSpeed = 150;
     this.direction = "right";
     this.lastAnimationFrameTime = null;
+    this.enemyScale = 1.7;
+
+    //set movement properties
     this.speed = speed;
 
-    this.sourceX = 0;
-    this.sourceY = sourceY;
-    this.enemyScale = 1.7; // Scale the enemy sprite
+    //set gameplay peoperties
+    this.health = health;
+    this.damage = 10;
 
+    //set references
     this.player = player;
+    this.enemies = enemies;
 
-    this.damage = 10; // Damage amount
-
+    //initialize arrays
     this.particles = [];
-
-    this.health = health; // Set initial health
-    this.damageTexts = []; // To store damage texts
-    this.enemies = enemies; // Reference to the enemies
+    this.damageTexts = [];
   }
 
+  // Function to update the enemy's position and health
   enemyUpdate(deltaTime: number, timestamp: number, currencies: Currency[]) {
+
+    // remove the enemy from array if health is 0
     if (this.health <= 0) {
       for (let enemy of this.enemies) {
         if (enemy === this) {
           this.enemies.splice(this.enemies.indexOf(enemy), 1);
         }
       }
+      
+      // Drop a coin after death
       this.die(currencies);
     }
+
     // Calculate the direction towards the player
     let dx = this.player.X - this.X;
     let dy = this.player.Y - this.Y;
@@ -117,27 +141,29 @@ export class Enemy extends GameObject {
     this.damageTexts.forEach((dt) => (dt.alpha -= deltaTime / 1000));
   }
 
+  // Function to generate blood particles when the enemy hits the player
   generateBloodParticles(x: number, y: number) {
     for (let i = 0; i < 15; i++) {
-      // Generate 20 particles
       this.particles.push(new Particle(x, y));
     }
   }
 
+  // Function to decrease the enemy's health when hit by the player
   takeDamage(amount: number) {
     soundManager.playSFX("damage");
     this.health -= amount;
     this.damageTexts.push({ x: this.X, y: this.Y, damage: amount, alpha: 1 });
   }
 
+  // Function to drop a coin when the enemy dies
   die(currencies: Currency[]) {
-    Global.SCORE += 1; // Increase the player's score
-    localStorage.setItem("score", Global.SCORE.toString()); // Save the score to local storage
-    // Drop a diamond
+    Global.SCORE += 1;
+    localStorage.setItem("score", Global.SCORE.toString());
     const diamond = new Currency(this.X, this.Y, this.player, currencies);
     currencies.push(diamond);
   }
 
+  // Function to update the enemy's animation
   enemyAnimationUpdate(timestamp: number) {
     if (!this.lastAnimationFrameTime) {
       this.lastAnimationFrameTime = timestamp;
@@ -150,9 +176,10 @@ export class Enemy extends GameObject {
     }
   }
 
+  // Function to draw the enemy on the canvas
   enemyDraw(sprite: Sprite) {
     this.sourceX = this.currentFrame * this.frameWidth;
-    Global.CTX.save(); // Save the current state of the canvas
+    Global.CTX.save();
 
     if (this.direction === "left") {
       // Flip the sprite horizontally
@@ -162,9 +189,9 @@ export class Enemy extends GameObject {
         this.sourceX,
         this.sourceY,
         this.frameWidth,
-        this.frameHeight, // Source rectangle
+        this.frameHeight,
         -(this.X + this.frameWidth / 2),
-        this.Y - this.frameHeight / 2, // Destination rectangle (negated x to flip)
+        this.Y - this.frameHeight / 2,
         this.frameWidth * this.enemyScale,
         this.frameHeight * this.enemyScale
       );
@@ -175,15 +202,15 @@ export class Enemy extends GameObject {
         this.sourceX,
         this.sourceY,
         this.frameWidth,
-        this.frameHeight, // Source rectangle
+        this.frameHeight,
         this.X - this.frameWidth / 2,
-        this.Y - this.frameHeight / 2, // Destination rectangle
+        this.Y - this.frameHeight / 2,
         this.frameWidth * this.enemyScale,
         this.frameHeight * this.enemyScale
       );
     }
 
-    Global.CTX.restore(); // Restore the Global.CANVAS state
+    Global.CTX.restore();
 
     // Draw particles
     this.particles.forEach((p) => p.draw());

@@ -15,6 +15,7 @@ import { UpgradeMenu } from "./Upgrade/upgradeMenu";
 import { startGame } from "./UI/StartScreen";
 import { drawTimer } from "./Elements/Timer";
 import { deathCounter } from "./Elements/deathCount";
+import { addQuitButton, drawButton } from "./Elements/QuitButton";
 
 Global.init();
 
@@ -23,19 +24,20 @@ export function Game(
   enemies: Enemy[],
   sprite: Sprite,
   backgroundTile: BackgroundTile,
-  obstacles: Obstacle[]
+  obstacles: Obstacle[],
+  currencies: Currency[]
 ) {
-  const currencies: Currency[] = [];
-
+  // Create upgrade menu
   const upgradeMenu = new UpgradeMenu(gameLoop, player);
 
+  // Create key controls
   const controlls = new KeyControls();
   controlls.keydown(gameLoop);
   controlls.keyup();
 
+  // Game loop variables
   let lastFrameTime: number = 0;
   let pauseTimestamp: number | null = null;
-
   let startTime = Date.now();
   let pauseStartTime: number | null = null;
   let totalPausedTime: number = 0;
@@ -44,10 +46,13 @@ export function Game(
   let elapsedSpawnTime = 0;
   let spawnInterval = 5000;
 
+  // Play background music
   soundManager.playMusic();
 
+  // Add volume listener
   addVolumeListener();
 
+  // Check if player has enough coins/diamonds to level up
   function checkLevelUp() {
     while (player.collectedDiamonds >= player.level * 5) {
       player.collectedDiamonds = 0;
@@ -57,74 +62,30 @@ export function Game(
     }
   }
 
-  // Button properties
-  const buttonX = Global.CANVAS_WIDTH / 2 - 70;
-  const buttonY = Global.CANVAS_HEIGHT / 2 + 100; // Position below volume sliders
-  const buttonWidth = 150;
-  const buttonHeight = 50;
-  const buttonColor = "#FF0000"; // Red color
-  const textColor = "#FFFFFF"; // White color for text
-  const fontSize = 20;
-  const fontFamily = "Arial";
-  const text = "Quit Game";
-
-  // Draw button
-  function drawButton() {
-    Global.CTX.fillStyle = buttonColor;
-    Global.CTX.fillRect(
-      buttonX - Global.offsetX,
-      buttonY - Global.offsetY,
-      buttonWidth,
-      buttonHeight
-    );
-    Global.CTX.font = `${fontSize}px ${fontFamily}`;
-    Global.CTX.fillStyle = textColor;
-    Global.CTX.textAlign = "center";
-    Global.CTX.textBaseline = "middle";
-    Global.CTX.fillText(
-      text,
-      buttonX + buttonWidth / 2 - Global.offsetX,
-      buttonY + buttonHeight / 2 - Global.offsetY
-    );
-  }
-
-  // Check if the click is inside the button
-  function isInsideButton(x: number, y: number) {
-    return (
-      x >= buttonX &&
-      x <= buttonX + buttonWidth &&
-      y >= buttonY &&
-      y <= buttonY + buttonHeight
-    );
-  }
-
-  // Add event listener for click
-  Global.CANVAS.addEventListener("click", function (event) {
-    const rect = Global.CANVAS.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    if (isInsideButton(x, y)) {
-      window.location.reload();
-    }
-  });
+  addQuitButton();
 
   soundManager.checkIfAudioLoaded();
 
+  // Main game loop
   function gameLoop(timestamp: number) {
+    // Check if all assets are loaded
     if (!Global.SpriteLoaded || !soundManager.audioLoaded) {
       drawLoadingAnimation(timestamp);
       requestAnimationFrame(gameLoop);
       return;
     }
-    checkLevelUp();
+
+    // Check if the game is paused
     if (Global.PAUSE) {
+      // Pause music when the game is paused
       if (!soundManager.music.paused) {
         soundManager.music.pause();
       }
       if (!pauseStartTime) {
         pauseStartTime = Date.now();
       }
+
+      // Draw the pause screen
       if (!Global.UPGRADE_CHOICES && !Global.GAMEOVER) {
         Global.CTX.fillStyle = "white";
         Global.CTX.font = "60px Arial";
@@ -138,12 +99,15 @@ export function Game(
         drawButton();
         Global.CTX.restore();
       }
+
+      // Save the timestamp when the game is paused
       pauseTimestamp = timestamp;
       lastFrameTime = timestamp;
       startTime = startTime;
 
       return;
     } else if (pauseStartTime) {
+      // Add the time spent paused to the total paused time
       totalPausedTime += Date.now() - pauseStartTime;
       pauseStartTime = null;
     }
@@ -160,7 +124,9 @@ export function Game(
       }
     }
 
+    // Calculate the time elapsed since the game started
     const elapsedSeconds = (Date.now() - startTime - totalPausedTime) / 1000;
+
     // Calculate the time elapsed since the last frame
     const deltaTime = timestamp - lastFrameTime;
     lastFrameTime = timestamp;
@@ -171,9 +137,11 @@ export function Game(
     // Check if it's time to spawn a new enemy
     if (elapsedSpawnTime >= spawnInterval) {
       spawnEnemy(player, enemies);
-      elapsedSpawnTime = 0; // Reset the elapsed time
-      spawnInterval = getRandomSpawnInterval(player); // Get a new random spawn interval
+      elapsedSpawnTime = 0;
+      spawnInterval = getRandomSpawnInterval(player);
     }
+
+    checkLevelUp();
 
     //updating player and enemy animations and positions
     player.playerAnimationUpdate(timestamp, controlls.isMoving);
@@ -188,6 +156,7 @@ export function Game(
       currency.update(deltaTime);
     }
 
+    // Clear the canvas
     Global.CTX.clearRect(
       -Global.offsetX,
       -Global.offsetY,
@@ -195,24 +164,31 @@ export function Game(
       Global.CANVAS_HEIGHT
     );
 
+    // Draw the background
     backgroundTile.draw(Global.CTX);
-
-    for (const currency of currencies) {
-      currency.draw(sprite);
-    }
 
     // Draw obstacles
     for (const obstacle of obstacles) {
       obstacle.draw();
     }
 
-    // Draw the current frame
+    //Draw currency
+    for (const currency of currencies) {
+      currency.draw(sprite);
+    }
+
+    // Draw the enemies
     for (const enemy of enemies) {
       enemy.enemyDraw(sprite);
     }
 
+    // Draw the player
     player.playerDraw(sprite, elapsedSeconds);
+
+    //Draw the timer
     drawTimer(elapsedSeconds);
+
+    // Draw the score
     deathCounter(Global.SCORE);
 
     // Request the next frame
@@ -222,6 +198,9 @@ export function Game(
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  soundManager.checkIfAudioLoaded(); // Ensure audio is checked when DOM is ready
+  //start loading audio in the start menu as some audio files are large
+  soundManager.checkIfAudioLoaded();
+
+  // Start the game
   startGame();
 });

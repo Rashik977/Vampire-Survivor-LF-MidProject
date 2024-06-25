@@ -2,7 +2,9 @@ import { GameObject } from "../GameObject";
 import { Global } from "../Global";
 import { Player } from "../Player/Player";
 import { Sprite } from "../Sprites/Sprite";
+import { getDistance } from "../Utils/getDistance";
 
+// Class to create coin objects
 export class Currency extends GameObject {
   private player: Player;
   private speed: number;
@@ -28,10 +30,8 @@ export class Currency extends GameObject {
   }
 
   update(deltaTime: number) {
-    // Check if player is near
-    const distance = Math.sqrt(
-      (this.player.X - this.X) ** 2 + (this.player.Y - this.Y) ** 2
-    );
+    // Check if player is near the coin
+    const distance = getDistance(this.player.X, this.player.Y, this.X, this.Y);
     if (distance < this.player.coinAttractionRange) {
       this.collecting = true;
     }
@@ -48,11 +48,11 @@ export class Currency extends GameObject {
         dy = (dy / length) * this.speed * deltaTime;
       }
 
-      // Update the enemy's position
+      // Update the coin's position
       this.X += dx;
       this.Y += dy;
 
-      // Check if reached player
+      // Check if reached player and remove the coin from the array
       if (distance < 10) {
         for (const currency of this.currencies) {
           if (currency === this) {
@@ -64,6 +64,7 @@ export class Currency extends GameObject {
     }
   }
 
+  // Draw the coin on the canvas
   draw(sprite: Sprite) {
     Global.CTX.drawImage(
       sprite.spriteSheet,

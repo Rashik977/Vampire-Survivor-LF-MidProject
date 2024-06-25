@@ -1,6 +1,7 @@
 import { Global } from "../Global";
 import { Player } from "../Player/Player";
 
+// function to draw the level progress bar on the canvas
 export function drawLevelProgressBar(player: Player) {
   const progressBarWidth = Global.CANVAS_WIDTH - 40;
   const progressBarHeight = 30;

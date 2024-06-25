@@ -2,6 +2,7 @@ import { Global } from "../Global";
 import { Sprite } from "../Sprites/Sprite";
 import { GameObject } from "../GameObject";
 
+// Class to draw the obstacles
 export class Obstacle extends GameObject {
   public width: number;
   public height: number;
@@ -32,11 +33,11 @@ export class Obstacle extends GameObject {
       this.spriteX,
       this.spriteY,
       this.width,
-      this.height, // Source
+      this.height,
       this.X,
-      this.Y, // Destination
+      this.Y,
       this.width * 2,
-      this.height * 2 // Destination dimensions
+      this.height * 2
     );
   }
 }

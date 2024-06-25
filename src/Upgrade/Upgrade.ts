@@ -1,5 +1,6 @@
 import { Player } from "../Player/Player";
 
+// Upgrade types
 export type UpgradeType =
   | "speed"
   | "health"
@@ -12,6 +13,7 @@ export type UpgradeType =
   | "shield"
   | "shield upgrade";
 
+// Upgrade class
 export class Upgrade {
   type: UpgradeType;
   name: string;
@@ -23,6 +25,7 @@ export class Upgrade {
     this.description = description;
   }
 
+  // Function to get 3 random upgrades
   static getRandomUpgrades(): Upgrade[] {
     const upgrades = [
       new Upgrade("speed", "Increase Speed", "Move faster"),
@@ -38,6 +41,7 @@ export class Upgrade {
       new Upgrade("shield", "Bible", "Shield from enemies with your bible"),
     ];
 
+    // If player already has the weapon, replace it with the upgrade weapon instead
     if (Player.ownGun) {
       const gun = upgrades.filter((upgrade) => upgrade.type === "gun");
       upgrades.splice(upgrades.indexOf(gun[0]), 1);

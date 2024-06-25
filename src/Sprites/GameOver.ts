@@ -1,5 +1,6 @@
 import { Global } from "../Global";
 
+// Class to display the game over screen
 export class GameOver {
   private gameOverImage: HTMLImageElement;
 

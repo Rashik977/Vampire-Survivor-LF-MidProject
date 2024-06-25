@@ -3,9 +3,11 @@ import { GameInitialize } from "../GameInitialize";
 import { backgrounds } from "../Background/BackgroundInfo";
 import { displayScore } from "./drawScore";
 
+// function to display the background selection screen
 export function backgroundSelection() {
   let selectedBackground: any = null;
 
+  // DOM elements
   const backgroundSelectionScreen = document.querySelector(
     ".background-selection"
   ) as HTMLElement;
@@ -21,9 +23,12 @@ export function backgroundSelection() {
   const buyButton = document.querySelector(
     ".btn--buyBackground"
   ) as HTMLButtonElement;
+
+  // Display the background selection screen
   backgroundSelectionScreen.classList.remove("hidden");
   backgroundSelectionScreen.classList.add("screen");
 
+  // Display the background images
   backgrounds.forEach((background: any) => {
     const img = document.createElement("img");
     img.src = background.imgSrc;
@@ -56,15 +61,19 @@ export function backgroundSelection() {
     backgroundSelectionItems.appendChild(img);
   });
 
+  // Event listeners for the start  button
   startButton.addEventListener("click", () => {
     Global.BACKGROUND_INDEX = backgrounds.indexOf(selectedBackground);
 
+    // Hide the background selection screen
     const screen = document.querySelector(
       ".start-screen-wrapper"
     ) as HTMLElement;
     screen.classList.add("hidden");
     GameInitialize.init();
   });
+
+  // Event listener for the buy button
   buyButton.addEventListener("click", () => {
     if (Global.SCORE >= selectedBackground.cost) {
       Global.SCORE -= selectedBackground.cost;

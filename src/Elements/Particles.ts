@@ -1,6 +1,7 @@
 import { Global } from "../Global";
 import { GameObject } from "../GameObject";
 
+// Class to create particles for the enemy hitting the player effect
 export class Particle extends GameObject {
   public size: number;
   public color: string;
@@ -11,16 +12,17 @@ export class Particle extends GameObject {
 
   constructor(x: number, y: number) {
     super(x, y);
-    this.size = Math.random() * 3 + 1; // Random size between 1 and 3
+    this.size = Math.random() * 3 + 1;
     this.color = "red";
 
     // Randomize the direction using an angle and speed
-    const angle = Math.random() * -Math.PI; // Random angle in radians
-    const speed = Math.random(); // Random speed
+    const angle = Math.random() * -Math.PI;
+    const speed = Math.random();
     this.velocityX = speed * Math.cos(angle);
     this.velocityY = speed * Math.sin(angle);
 
-    this.lifetime = 500; // Lifetime in milliseconds
+    //Decay the particles over time
+    this.lifetime = 500;
     this.age = 0;
   }
 

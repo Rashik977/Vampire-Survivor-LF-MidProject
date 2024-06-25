@@ -2,6 +2,7 @@ import { Global } from "../Global";
 import { Sprite } from "../Sprites/Sprite";
 import { BackgroundTile } from "./Background";
 
+//Class to create the background from player choice
 export class BackgroundCreator {
   public static createBackground(sprite: Sprite): BackgroundTile {
     switch (Global.BACKGROUND_INDEX) {

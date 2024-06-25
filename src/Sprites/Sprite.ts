@@ -1,3 +1,4 @@
+// class to load sprite sheet
 export class Sprite {
   public spriteSheet: HTMLImageElement;
   constructor(spriteSheet: string) {

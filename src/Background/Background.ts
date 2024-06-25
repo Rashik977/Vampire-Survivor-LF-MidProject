@@ -1,4 +1,5 @@
 import { Global } from "../Global";
+
 //Class to draw the background tiles
 export class BackgroundTile {
   private offScreenCanvas: HTMLCanvasElement;
@@ -13,6 +14,8 @@ export class BackgroundTile {
   constructor(tileImage: HTMLImageElement, sourceX: number) {
     this.tileWidth = 85;
     this.tileHeight = 80;
+
+    // Calculate the number of tiles needed to fill the screen
     this.numTilesX = Math.ceil(
       (Global.CANVAS_WIDTH * 5 + Global.CANVAS_WIDTH) / this.tileWidth
     );
@@ -31,31 +34,32 @@ export class BackgroundTile {
     this.tileImage = tileImage;
     this.sourceX = sourceX;
 
-    // Draw the entire tile map on the off-screen canvas
+    // Loading the SpriteSheet for the whole game
     this.tileImage.onload = () => {
       Global.SpriteLoaded = true;
       this.drawTileMap(this.sourceX);
     };
   }
-
+  // draw the tile map on an offscreen canvas
   private drawTileMap(sourceX: number) {
     for (let x = 0; x < this.numTilesX; x++) {
       for (let y = 0; y < this.numTilesY; y++) {
         this.offScreenCtx.drawImage(
           this.tileImage,
           sourceX,
-          560, // Source coordinates
+          560,
           this.tileImage.width,
-          this.tileImage.height, // Source dimensions
+          this.tileImage.height,
           x * this.tileWidth,
           y * this.tileHeight,
           this.tileWidth * 20,
-          this.tileHeight * 20 // Destination dimensions
+          this.tileHeight * 20
         );
       }
     }
   }
 
+  // Draw the offscreen canvas to the main canvas as a single image
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.drawImage(
       this.offScreenCanvas,

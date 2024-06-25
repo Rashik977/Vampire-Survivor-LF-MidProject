@@ -2,6 +2,7 @@ import { Global } from "../Global";
 import { Player } from "../Player/Player";
 import { Upgrade } from "./Upgrade";
 
+// Class to handle the upgrade menu
 export class UpgradeMenu {
   upgradeChoices: Upgrade[] | null = null;
   hoveredChoiceIndex: number | null = null;
@@ -22,10 +23,11 @@ export class UpgradeMenu {
     this.player = player;
   }
 
+  // Function to prompt the player with upgrade choices
   promptUpgradeChoices() {
     this.upgradeChoices = Upgrade.getRandomUpgrades();
     Global.PAUSE = true;
-    Global.UPGRADE_CHOICES = true; // Set upgrade choice state
+    Global.UPGRADE_CHOICES = true;
     this.drawUpgradeChoices();
 
     // Add mouse event listeners for selection and hover
@@ -33,6 +35,7 @@ export class UpgradeMenu {
     Global.CANVAS.addEventListener("mousemove", this.handleUpgradeHover);
   }
 
+  // Function to draw the upgrade choices
   drawUpgradeChoices() {
     if (!this.upgradeChoices) return;
 
@@ -91,6 +94,7 @@ export class UpgradeMenu {
     });
   }
 
+  // Function to handle the hover event on the upgrade choices
   handleUpgradeHover = (event: MouseEvent) => {
     const rect = Global.CANVAS.getBoundingClientRect();
     const mouseX = event.clientX - rect.left - Global.offsetX;
@@ -115,6 +119,7 @@ export class UpgradeMenu {
     }
   };
 
+  // Function to handle the selection event on the upgrade choices
   handleUpgradeSelection = (event: MouseEvent) => {
     const rect = Global.CANVAS.getBoundingClientRect();
     const mouseX = event.clientX - rect.left - Global.offsetX;
@@ -132,7 +137,7 @@ export class UpgradeMenu {
           this.applyUpgrade(selectedUpgrade);
           this.upgradeChoices = null;
           Global.PAUSE = false;
-          Global.UPGRADE_CHOICES = false; // Reset upgrade choice state
+          Global.UPGRADE_CHOICES = false;
           requestAnimationFrame(this.gameLoop);
           Global.CANVAS.removeEventListener(
             "click",
@@ -147,10 +152,11 @@ export class UpgradeMenu {
     });
   };
 
+  // Function to apply the selected upgrade
   applyUpgrade(upgrade: Upgrade) {
     switch (upgrade.type) {
       case "speed":
-        this.player.speed += 0.02;
+        this.player.speed = Math.min(0.6, this.player.speed + 0.05);
         break;
       case "maxHealth":
         this.player.health = this.player.maxHealth;

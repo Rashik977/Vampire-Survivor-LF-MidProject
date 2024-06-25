@@ -1,6 +1,7 @@
 import { Global } from "../Global";
 import { soundManager } from "./SoundManager";
 
+// Function to draw the volume sliders on the canvas
 export function drawVolumeSliders() {
   const sliderWidth = 200;
   const sliderHeight = 20;

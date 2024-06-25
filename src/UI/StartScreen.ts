@@ -2,6 +2,7 @@ import { displayScore } from "./drawScore";
 import { drawTimer } from "./drawTimer";
 import { playerSelection } from "./playerSelection";
 
+// function to start the game
 export function startGame() {
   const startGamebtn = document.querySelector(
     ".btn--start"

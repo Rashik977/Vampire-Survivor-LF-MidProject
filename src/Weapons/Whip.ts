@@ -3,6 +3,7 @@ import { GameObject } from "../GameObject";
 import { Global } from "../Global";
 import { checkCollisionPlayer } from "../Utils/Utils";
 
+// Class to create whip objects
 export class Whip extends GameObject {
   public whipLength: number;
   public damage: number;
@@ -61,15 +62,15 @@ export class Whip extends GameObject {
     playerScale: number
   ) {
     if (isAttacking && direction === "left") {
-      Global.CTX.restore(); // Restore the Global.CANVAS state
+      Global.CTX.restore();
       Global.CTX.drawImage(
         sprite.spriteSheet,
         this.sourceX,
         this.sourceY,
         frameWidth,
-        20, // Source rectangle
+        20,
         this.X - this.whipLength - 30,
-        this.Y - frameHeight / 2, // Destination rectangle
+        this.Y - frameHeight / 2,
         frameWidth * playerScale,
         20 * playerScale
       );
@@ -82,9 +83,9 @@ export class Whip extends GameObject {
         this.sourceX,
         this.sourceY,
         frameWidth,
-        20, // Source rectangle
+        20,
         -(this.X + frameWidth * 3),
-        this.Y - frameHeight / 2, // Destination rectangle (negated x to flip)
+        this.Y - frameHeight / 2,
         frameWidth * playerScale,
         20 * playerScale
       );

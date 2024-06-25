@@ -1,6 +1,7 @@
 import { Global } from "../Global";
 import { Player } from "./Player";
 
+// Class to return the user selected player
 export class PlayerCreator {
   public static createPlayer(enemies: any): Player {
     let player: Player;

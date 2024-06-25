@@ -3,6 +3,7 @@ import { Sprite } from "../Sprites/Sprite";
 import { Obstacle } from "./Obstacles";
 import { placeObstaclesRandomly } from "./PlaceObstacles";
 
+// class to return the user selected background obstacles
 export class ObstaclesCreator {
   public static createObstacles(sprite: Sprite): Obstacle[] {
     switch (Global.BACKGROUND_INDEX) {

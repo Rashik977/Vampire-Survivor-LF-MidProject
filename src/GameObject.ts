@@ -1,3 +1,4 @@
+// Base class for all game objects
 export class GameObject {
   private x: number;
   private y: number;

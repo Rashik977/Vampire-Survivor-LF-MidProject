@@ -1,3 +1,4 @@
+// player information initliazaion
 const playersInit = [
   {
     name: "Antonio",

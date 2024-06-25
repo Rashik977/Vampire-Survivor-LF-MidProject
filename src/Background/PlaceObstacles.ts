@@ -1,19 +1,9 @@
 import { Sprite } from "../Sprites/Sprite";
 import { Obstacle } from "./Obstacles";
-import { Global } from "../Global";
 import { isOverlapping } from "../Utils/Utils";
+import { getRandomPosition } from "../Utils/getRandomPosition";
 
-function getRandomPosition() {
-  const mapWidth = Global.CANVAS_WIDTH * 2.5;
-  const mapHeight = Global.CANVAS_HEIGHT * 2.5;
-  const direction = Math.random() < 0.5 ? -1 : 1;
-  const direction1 = Math.random() < 0.5 ? -1 : 1;
-  const x = Math.random() * mapWidth * direction;
-  const y = Math.random() * mapHeight * direction1;
-
-  return { x, y };
-}
-
+// function to place random obstacles on the background
 export function placeObstaclesRandomly(
   sprite: Sprite,
   numObstacles: number,
@@ -48,7 +38,7 @@ export function placeObstaclesRandomly(
         Math.floor(Math.random() * numOfSprite) * 40,
         SourceY
       )
-    ); // Assuming obstacles are from the same sprite position
+    );
   }
 
   return obstacles;

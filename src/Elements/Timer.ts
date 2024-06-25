@@ -1,8 +1,8 @@
 import { formatTime } from "../Utils/formatTime";
 import { Global } from "../Global";
 
+// Function to draw the timer on the canvas
 export function drawTimer(elapsedSeconds: number) {
-  // Draw timer
   Global.CTX.fillStyle = "white";
   Global.CTX.font = "20px Gothic A1";
   Global.CTX.letterSpacing = "3px";
