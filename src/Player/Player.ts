@@ -253,7 +253,6 @@ export class Player extends GameObject {
 
   //function to attack with whip
   whipAttack() {
-    console.log(this.whip.whipLength);
     soundManager.playSFX("whip");
     const whipEndX =
       this.direction === "right"

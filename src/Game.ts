@@ -74,7 +74,8 @@ export function Game(
       requestAnimationFrame(gameLoop);
       return;
     }
-
+    checkLevelUp();
+    
     // Check if the game is paused
     if (Global.PAUSE) {
       // Pause music when the game is paused
@@ -141,7 +142,6 @@ export function Game(
       spawnInterval = getRandomSpawnInterval(player);
     }
 
-    checkLevelUp();
 
     //updating player and enemy animations and positions
     player.playerAnimationUpdate(timestamp, controlls.isMoving);
