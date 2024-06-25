@@ -2,6 +2,12 @@ Vampire Survivors Clone
 
 This is my minor project for my fellowship at LeapFrog Technologies.
 
+Setup:
+1. Clone the repo.
+2. Use npm install, to install the dependencies (typescript -"^5.2.2" and vite-"^5.2.0")
+3. Use npm run dev, for Vite live preview
+4. Use npm run build, to build the game
+
 Usage:
 1. Start the game using the start button.
 2. Choose your player (buy the player if you have collected enough score) Your purchased information will be stored in localStorage. Different characters give different playing styles.
