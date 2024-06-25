@@ -4,7 +4,7 @@ import { Enemy } from "./Enemy";
 
 // Function to get a random spawn interval
 export function getRandomSpawnInterval(player: Player) {
-  return Math.random() * Math.max(4500 - player.level * 500, 100);
+  return Math.random() * Math.max(4500 - player.level * 500, 400);
 }
 
 // Function to spawn enemies at random positions outside the canvas
