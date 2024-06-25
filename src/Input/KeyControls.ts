@@ -1,4 +1,6 @@
+import { addQuitButton, removeQuitButton } from "../Elements/QuitButton";
 import { Global } from "../Global";
+import { addVolumeListener, removeVolumeListener } from "../Sound/volumeSlider";
 
 // class to handle the key controls
 export class KeyControls {
@@ -49,6 +51,13 @@ export class KeyControls {
         event.key === "Escape"
       ) {
         Global.PAUSE = !Global.PAUSE;
+        if (Global.PAUSE) {
+          addVolumeListener();
+          addQuitButton();
+        } else {
+          removeVolumeListener();
+          removeQuitButton();
+        }
         requestAnimationFrame(gameLoop);
       } else if (Global.GAMEOVER && event.key === "Enter") {
         location.reload();

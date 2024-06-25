@@ -10,12 +10,12 @@ import { soundManager } from "./Sound/SoundManager";
 import { Obstacle } from "./Background/Obstacles";
 import { drawLoadingAnimation } from "./Utils/Loading";
 import { spawnEnemy, getRandomSpawnInterval } from "./Enemy/spawnEnemy";
-import { addVolumeListener, drawVolumeSliders } from "./Sound/volumeSlider";
+import { drawVolumeSliders } from "./Sound/volumeSlider";
 import { UpgradeMenu } from "./Upgrade/upgradeMenu";
 import { startGame } from "./UI/StartScreen";
 import { drawTimer } from "./Elements/Timer";
 import { deathCounter } from "./Elements/deathCount";
-import { addQuitButton, drawButton } from "./Elements/QuitButton";
+import { drawButton } from "./Elements/QuitButton";
 
 Global.init();
 
@@ -49,9 +49,6 @@ export function Game(
   // Play background music
   soundManager.playMusic();
 
-  // Add volume listener
-  addVolumeListener();
-
   // Check if player has enough coins/diamonds to level up
   function checkLevelUp() {
     while (player.collectedDiamonds >= player.level * 5) {
@@ -61,8 +58,6 @@ export function Game(
       upgradeMenu.promptUpgradeChoices();
     }
   }
-
-  addQuitButton();
 
   soundManager.checkIfAudioLoaded();
 
@@ -75,7 +70,7 @@ export function Game(
       return;
     }
     checkLevelUp();
-    
+
     // Check if the game is paused
     if (Global.PAUSE) {
       // Pause music when the game is paused
@@ -141,7 +136,6 @@ export function Game(
       elapsedSpawnTime = 0;
       spawnInterval = getRandomSpawnInterval(player);
     }
-
 
     //updating player and enemy animations and positions
     player.playerAnimationUpdate(timestamp, controlls.isMoving);

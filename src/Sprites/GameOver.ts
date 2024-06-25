@@ -20,7 +20,7 @@ export class GameOver {
     Global.CTX.font = "20px Arial";
     Global.CTX.fillText(
       "Press Enter to restart",
-      Global.CANVAS_WIDTH / 2 - 100 - Global.offsetX,
+      Global.CANVAS_WIDTH / 2 - 135 - Global.offsetX,
       Global.CANVAS_HEIGHT / 2 + 60 - Global.offsetY
     );
     Global.CTX.restore();

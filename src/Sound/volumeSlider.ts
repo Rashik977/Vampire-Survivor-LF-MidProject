@@ -52,32 +52,37 @@ function drawSlider(
   Global.CTX.fillText(label, x, y - 10);
 }
 
-export function addVolumeListener() {
-  Global.CANVAS.addEventListener("click", (event: MouseEvent) => {
-    const { offsetX, offsetY } = event;
-    const musicSliderX = (Global.CANVAS_WIDTH - 200) / 2;
-    const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
-    const sfxSliderX = musicSliderX;
-    const sfxSliderY = musicSliderY + 50;
+function eventSlider(event: MouseEvent) {
+  const { offsetX, offsetY } = event;
+  const musicSliderX = (Global.CANVAS_WIDTH - 200) / 2;
+  const musicSliderY = Global.CANVAS_HEIGHT / 2 - 50;
+  const sfxSliderX = musicSliderX;
+  const sfxSliderY = musicSliderY + 50;
 
-    if (
-      offsetX >= musicSliderX &&
-      offsetX <= musicSliderX + 200 &&
-      offsetY >= musicSliderY &&
-      offsetY <= musicSliderY + 20
-    ) {
-      const value = Math.max(0, Math.min(1, (offsetX - musicSliderX) / 200));
-      soundManager.updateVolume(value, soundManager.sfxVolume);
-      drawVolumeSliders();
-    } else if (
-      offsetX >= sfxSliderX &&
-      offsetX <= sfxSliderX + 200 &&
-      offsetY >= sfxSliderY &&
-      offsetY <= sfxSliderY + 20
-    ) {
-      const value = Math.max(0, Math.min(1, (offsetX - sfxSliderX) / 200));
-      soundManager.updateVolume(soundManager.musicVolume, value);
-      drawVolumeSliders();
-    }
-  });
+  if (
+    offsetX >= musicSliderX &&
+    offsetX <= musicSliderX + 200 &&
+    offsetY >= musicSliderY &&
+    offsetY <= musicSliderY + 20
+  ) {
+    const value = Math.max(0, Math.min(1, (offsetX - musicSliderX) / 200));
+    soundManager.updateVolume(value, soundManager.sfxVolume);
+    drawVolumeSliders();
+  } else if (
+    offsetX >= sfxSliderX &&
+    offsetX <= sfxSliderX + 200 &&
+    offsetY >= sfxSliderY &&
+    offsetY <= sfxSliderY + 20
+  ) {
+    const value = Math.max(0, Math.min(1, (offsetX - sfxSliderX) / 200));
+    soundManager.updateVolume(soundManager.musicVolume, value);
+    drawVolumeSliders();
+  }
+}
+
+export function addVolumeListener() {
+  Global.CANVAS.addEventListener("click", eventSlider);
+}
+export function removeVolumeListener() {
+  Global.CANVAS.removeEventListener("click", eventSlider);
 }

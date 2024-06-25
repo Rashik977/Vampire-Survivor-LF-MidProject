@@ -17,7 +17,7 @@ export class PlayerCreator {
         player.whip.damageCooldown = 800;
         player.whip.attackCooldown = 800;
         //shield
-        player.shield.rotationSpeed = 2;
+        player.shield.rotationSpeed = 3;
         player.shield.damage = 10;
         //gun
         player.projectileCooldown = 1000;
@@ -32,8 +32,8 @@ export class PlayerCreator {
         player.speed = 0.1;
         //whip
         player.whip.damage = 20;
-        player.whip.damageCooldown = 1000;
-        player.whip.attackCooldown = 1000;
+        player.whip.damageCooldown = 800;
+        player.whip.attackCooldown = 800;
         //shield
         player.shield.rotationSpeed = 5;
         player.shield.damage = 25;
@@ -49,12 +49,12 @@ export class PlayerCreator {
         //speed
         player.speed = 0.2;
         //whip
-        player.whip.damage = 30;
+        player.whip.damage = 25;
         player.whip.damageCooldown = 1000;
         player.whip.attackCooldown = 1000;
         //shield
-        player.shield.rotationSpeed = 3;
-        player.shield.damage = 15;
+        player.shield.rotationSpeed = 4;
+        player.shield.damage = 20;
         //gun
         player.projectileCooldown = 500;
         player.bulletDamage = 45;

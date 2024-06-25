@@ -4,7 +4,7 @@ import { Enemy } from "./Enemy";
 
 // Function to get a random spawn interval
 export function getRandomSpawnInterval(player: Player) {
-  return Math.random() * Math.max(4500 - player.level * 500, 500);
+  return Math.random() * Math.max(4500 - player.level * 500, 100);
 }
 
 // Function to spawn enemies at random positions outside the canvas
@@ -47,7 +47,7 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
         220,
         37,
         30,
-        26,
+        26 + Math.max(0, player.level - 10) * 2,
         0.03,
         player,
         enemies
@@ -63,7 +63,7 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
         250,
         40,
         40,
-        40,
+        40 + Math.max(0, player.level - 10) * 2,
         0.02,
         player,
         enemies
@@ -79,7 +79,7 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
         290,
         60,
         50,
-        55,
+        55 + Math.max(0, player.level - 10) * 2,
         0.02,
         player,
         enemies
@@ -98,8 +98,8 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
         180,
         40,
         40,
-        15,
-        0.1 + Math.min(0.4, Math.max(0, player.level - 3) * 0.02),
+        15 + Math.max(0, player.level - 10) * 2,
+        Math.min(0.1 + Math.min(0.4, Math.max(0, player.level - 3) * 0.01), 1),
         player,
         enemies
       )

@@ -41,15 +41,21 @@ function isInsideButton(x: number, y: number) {
   );
 }
 
+function QuitButton(event: MouseEvent) {
+  const rect = Global.CANVAS.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  if (isInsideButton(x, y)) {
+    window.location.reload();
+  }
+}
+
 // Add event listener for click
 export function addQuitButton() {
-  Global.CANVAS.addEventListener("click", function (event) {
-    const rect = Global.CANVAS.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+  Global.CANVAS.addEventListener("click", QuitButton);
+}
 
-    if (isInsideButton(x, y)) {
-      window.location.reload();
-    }
-  });
+export function removeQuitButton() {
+  Global.CANVAS.removeEventListener("click", QuitButton);
 }
