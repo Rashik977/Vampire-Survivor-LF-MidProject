@@ -170,14 +170,23 @@ export class UpgradeMenu {
         break;
       case "whip upgrade":
         this.player.whip.damage += 5;
-        this.player.whip.damageCooldown -= 100;
-        this.player.whip.attackCooldown -= 100;
+        this.player.whip.damageCooldown = Math.max(
+          100,
+          (this.player.whip.damageCooldown -= 100)
+        );
+        this.player.whip.attackCooldown = Math.max(
+          100,
+          (this.player.whip.attackCooldown -= 100)
+        );
         break;
       case "shield":
         Player.ownBible = true;
         break;
       case "shield upgrade":
-        this.player.shield.rotationSpeed += 0.1;
+        this.player.shield.rotationSpeed = Math.min(
+          15,
+          this.player.shield.rotationSpeed + 0.1
+        );
         this.player.shield.damage += 3;
         break;
       case "whip":

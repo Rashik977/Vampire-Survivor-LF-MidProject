@@ -34,7 +34,7 @@ export class PlayerCreator {
         player.whip.damageCooldown = 1000;
         player.whip.attackCooldown = 1000;
         //shield
-        player.shield.rotationSpeed = 3;
+        player.shield.rotationSpeed = 5;
         player.shield.damage = 25;
         //gun
         player.projectileCooldown = 800;
