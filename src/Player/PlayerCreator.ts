@@ -9,6 +9,8 @@ export class PlayerCreator {
         //default weapon
         Player.ownWhip = true;
         player = new Player(Global.PLAYER_INDEX * 37, enemies, 100);
+        //speed
+        player.speed = 0.15;
         //whip
         player.whip.damage = 15;
         player.whip.damageCooldown = 800;
@@ -25,6 +27,8 @@ export class PlayerCreator {
         //default weapon
         Player.ownBible = true;
         player = new Player(Global.PLAYER_INDEX * 37, enemies, 150);
+        //speed
+        player.speed = 0.1;
         //whip
         player.whip.damage = 20;
         player.whip.damageCooldown = 1000;
@@ -35,6 +39,24 @@ export class PlayerCreator {
         //gun
         player.projectileCooldown = 800;
         player.bulletDamage = 25;
+
+        return player;
+      case 2:
+        //default weapon
+        Player.ownGun = true;
+        player = new Player(Global.PLAYER_INDEX * 37, enemies, 150);
+        //speed
+        player.speed = 0.2;
+        //whip
+        player.whip.damage = 30;
+        player.whip.damageCooldown = 1000;
+        player.whip.attackCooldown = 1000;
+        //shield
+        player.shield.rotationSpeed = 4;
+        player.shield.damage = 25;
+        //gun
+        player.projectileCooldown = 500;
+        player.bulletDamage = 35;
 
         return player;
       default:

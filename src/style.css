@@ -55,10 +55,21 @@ h1 {
 
 .score {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 20px;
+  right: 30px;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1rem;
+  font-family: "Press Start 2P", cursive; /* Retro font */
+  letter-spacing: 1px;
+  text-shadow: 2px 2px #000;
+}
+
+.time {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  color: white;
+  font-size: 1rem;
   font-family: "Press Start 2P", cursive; /* Retro font */
   letter-spacing: 1px;
   text-shadow: 2px 2px #000;

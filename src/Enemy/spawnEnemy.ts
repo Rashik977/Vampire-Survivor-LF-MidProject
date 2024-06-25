@@ -32,9 +32,9 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
       break;
   }
 
-  const random = Math.floor(Math.random() * 2);
+  const random = Math.floor(Math.random() * 4);
 
-  if (player.level < 3 || random === 0) {
+  if (player.level <= 1 || (random === 0 && player.level !== 4)) {
     enemies.push(
       new Enemy(
         x - Global.offsetX,
@@ -42,14 +42,15 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
         220,
         37,
         30,
-        26 + player.level,
+        26,
+        0.03,
         player,
         enemies
       )
     );
   }
 
-  if (player.level >= 3 && random === 1) {
+  if (player.level >= 2 && random === 1 && player.level !== 4) {
     enemies.push(
       new Enemy(
         x - Global.offsetX,
@@ -57,7 +58,43 @@ export function spawnEnemy(player: Player, enemies: Enemy[]) {
         250,
         40,
         40,
-        40 + player.level,
+        40,
+        0.02,
+        player,
+        enemies
+      )
+    );
+  }
+
+  if (player.level >= 3 && random === 2 && player.level !== 4) {
+    enemies.push(
+      new Enemy(
+        x - Global.offsetX,
+        y - Global.offsetY,
+        290,
+        60,
+        50,
+        55,
+        0.02,
+        player,
+        enemies
+      )
+    );
+  }
+
+  if (
+    (player.level >= 4 && random === 3) ||
+    (player.level === 4 && random >= 0)
+  ) {
+    enemies.push(
+      new Enemy(
+        x - Global.offsetX,
+        y - Global.offsetY,
+        180,
+        40,
+        40,
+        15,
+        0.1 + Math.min(0.4, Math.max(0, player.level - 3) * 0.02),
         player,
         enemies
       )

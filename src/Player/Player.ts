@@ -257,7 +257,7 @@ export class Player extends GameObject {
     }
   }
 
-  playerDraw(sprite: Sprite) {
+  playerDraw(sprite: Sprite, elapsedTime: number) {
     // Draw bullets
     this.projectiles.forEach((bullet) => {
       bullet.draw(sprite);
@@ -268,6 +268,10 @@ export class Player extends GameObject {
 
     // Game Over
     if (this.health <= 0) {
+      if (elapsedTime > Global.HIGH_TIMER) {
+        Global.HIGH_TIMER = elapsedTime;
+        localStorage.setItem("highTimer", Global.HIGH_TIMER.toString());
+      }
       soundManager.playSFX("gameOver");
       soundManager.music.pause();
       this.gameOver.draw();

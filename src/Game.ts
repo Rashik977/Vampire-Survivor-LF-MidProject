@@ -211,7 +211,7 @@ export function Game(
       enemy.enemyDraw(sprite);
     }
 
-    player.playerDraw(sprite);
+    player.playerDraw(sprite, elapsedSeconds);
     drawTimer(elapsedSeconds);
     deathCounter(Global.SCORE);
 

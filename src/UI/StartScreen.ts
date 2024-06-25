@@ -2,6 +2,18 @@ import { GameInitialize } from "../GameInitialize";
 import { Global } from "../Global";
 import { players } from "../Player/PlayerInfo";
 import { backgrounds } from "../Background/BackgroundInfo";
+import { formatTime } from "../Utils/formatTime";
+
+function drawTimer() {
+  const time = document.querySelector(".time") as HTMLElement;
+  const timer = formatTime(Global.HIGH_TIMER);
+  time.innerText = `Max Time Survived: ${timer}`;
+}
+
+function displayScore() {
+  const scoreDisplay = document.querySelector(".score") as HTMLElement;
+  scoreDisplay.innerText = `Score: ${Global.SCORE}`;
+}
 
 export function startGame() {
   const startGamebtn = document.querySelector(
@@ -14,6 +26,9 @@ export function startGame() {
     // Start the game loop
     playerSelection();
   });
+
+  drawTimer();
+  displayScore();
 }
 
 function playerSelection() {
@@ -29,15 +44,8 @@ function playerSelection() {
   const playerAlert = document.querySelector(".player-alert") as HTMLElement;
   const nextButton = document.querySelector(".btn--next") as HTMLButtonElement;
   const buyButton = document.querySelector(".btn--buy") as HTMLButtonElement;
-  const scoreDisplay = document.querySelector(".score") as HTMLElement;
   playerSelectionScreen.classList.remove("hidden");
   playerSelectionScreen.classList.add("screen");
-
-  function displayScore() {
-    scoreDisplay.innerText = `Score: ${Global.SCORE}`;
-  }
-
-  displayScore();
 
   players.forEach((player: any) => {
     const img = document.createElement("img");
@@ -119,15 +127,8 @@ function backgroundSelection() {
   const buyButton = document.querySelector(
     ".btn--buyBackground"
   ) as HTMLButtonElement;
-  const scoreDisplay = document.querySelector(".score") as HTMLElement;
   backgroundSelectionScreen.classList.remove("hidden");
   backgroundSelectionScreen.classList.add("screen");
-
-  function displayScore() {
-    scoreDisplay.innerText = `Score: ${Global.SCORE}`;
-  }
-
-  displayScore();
 
   backgrounds.forEach((background: any) => {
     const img = document.createElement("img");

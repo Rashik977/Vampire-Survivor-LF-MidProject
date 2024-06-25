@@ -41,6 +41,7 @@ export class Enemy extends GameObject {
     frameWidth: number,
     frameHeight: number,
     health: number,
+    speed: number,
     player: Player,
     enemies: Enemy[]
   ) {
@@ -52,7 +53,7 @@ export class Enemy extends GameObject {
     this.frameSpeed = 150;
     this.direction = "right";
     this.lastAnimationFrameTime = null;
-    this.speed = 0.02;
+    this.speed = speed;
 
     this.sourceX = 0;
     this.sourceY = sourceY;
