@@ -162,7 +162,10 @@ export class UpgradeMenu {
         Player.ownGun = true;
         break;
       case "gun upgrade":
-        this.player.projectileCooldown -= 100;
+        this.player.projectileCooldown = Math.max(
+          100,
+          (this.player.projectileCooldown -= 100)
+        );
         this.player.bulletDamage += 10;
         break;
       case "whip upgrade":

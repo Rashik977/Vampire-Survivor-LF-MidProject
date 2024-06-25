@@ -10,17 +10,17 @@ export class PlayerCreator {
         Player.ownWhip = true;
         player = new Player(Global.PLAYER_INDEX * 37, enemies, 100);
         //speed
-        player.speed = 0.15;
+        player.speed = 0.2;
         //whip
-        player.whip.damage = 15;
+        player.whip.damage = 25;
         player.whip.damageCooldown = 800;
         player.whip.attackCooldown = 800;
         //shield
         player.shield.rotationSpeed = 2;
-        player.shield.damage = 5;
+        player.shield.damage = 10;
         //gun
         player.projectileCooldown = 1000;
-        player.bulletDamage = 20;
+        player.bulletDamage = 40;
 
         return player;
       case 1:
@@ -35,10 +35,10 @@ export class PlayerCreator {
         player.whip.attackCooldown = 1000;
         //shield
         player.shield.rotationSpeed = 3;
-        player.shield.damage = 15;
+        player.shield.damage = 25;
         //gun
         player.projectileCooldown = 800;
-        player.bulletDamage = 25;
+        player.bulletDamage = 35;
 
         return player;
       case 2:
@@ -52,11 +52,11 @@ export class PlayerCreator {
         player.whip.damageCooldown = 1000;
         player.whip.attackCooldown = 1000;
         //shield
-        player.shield.rotationSpeed = 4;
-        player.shield.damage = 25;
+        player.shield.rotationSpeed = 3;
+        player.shield.damage = 15;
         //gun
         player.projectileCooldown = 500;
-        player.bulletDamage = 35;
+        player.bulletDamage = 45;
 
         return player;
       default:
